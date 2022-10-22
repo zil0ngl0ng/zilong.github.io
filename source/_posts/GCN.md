@@ -22,7 +22,7 @@ In this part, I motivate the form of propagation rule via a first-order approxim
 
 For signal $ x \in R^N $, we define the spectral convolutions on graph as 
 $$ g_{\theta } * x = Ug_{\theta }U^Tx \tag{1}$$ 
-in which $ U $ is the matrix of eigenvectors of normalized graph Laplacian $ L=I_N - D^{-1/2}AD^{-1/2}=U\Lambda U^T $, $ g_{\theta } $ can be understand as the function of $ \Lambda $(eigenvalues of $ L $).
+in which $ U $ is the matrix of eigenvectors of normalized graph Laplacian $ L=I_N - D^{-1/2}AD^{-1/2}=U\Lambda U^{-1}=U\Lambda U^T $, $ g_{\theta } $ can be understand as the function of $ \Lambda $(eigenvalues of $ L $). It's worth to notice that for a real symmetric matrix L's EVD matrix is orthogonal, so $U^{-1} = U^T$.
 
 With the help of Chebyshev polynomials $ T_k(x) $ up to $ K $ order:
 $$ g_{\theta'}(\Lambda) \approx \sum_{k=0}^{K} {\theta'_kT_k(\tilde{\Lambda})}  \tag{2}$$ 
@@ -31,5 +31,33 @@ in which, $ \tilde{\Lambda}=\frac{2}{\lambda_{max}}\Lambda-I_N, \theta' \in R^k 
 Combine the formulation $(1)$ and $(2)$, we can know that 
 $$ g_{\theta'} * x \approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} $$
 in which, $ \tilde L = \frac{2}{\lambda_{max}}L-I_N $, and all the reduction process is following.
-> The Reduction Process
+> **The Reduction Process**
+$\begin{aligned}
+g_{\theta } * x &= Ug_{\theta }U^Tx\\
+& \approx U \sum_{k=0}^{K} {\theta'_kT_k(\tilde{\Lambda})} U^Tx\\
+&= \sum_{k=0}^{K} {\theta'_k UT_k(\tilde{\Lambda})} U^Tx \\
+&= \sum_{k=0}^{K} {\theta'_k T_k(U\tilde{\Lambda} U^T)} x \\
+&= \sum_{k=0}^{K} {\theta'_k T_k(\tilde{L})} x 
+\end{aligned} $ 
+> * **$ UT_k(\tilde{\Lambda}) U^T = T_k(U\tilde{\Lambda} U^T) $**
+(mathematical induction)
+① for $k=0$, $T_0(\tilde{\Lambda})=1=T_0(U\tilde{\Lambda} U^T)$
+② assume that for $k \le m$, the equation is correct
+③ IF $k=m+1$, 
+&ensp; $\begin{aligned} 
+UT_{m+1}(\tilde{\Lambda}) U^T &=  U(2\tilde{\Lambda}T_{m}(\tilde{\Lambda})-T_{m-1}(\tilde{\Lambda}))U^T \\
+&= 2U\tilde{\Lambda}T_{m}(\tilde{\Lambda})U^T - U T_{m-1}(\tilde{\Lambda})U^T \\
+&= 2U\tilde{\Lambda}U^TUT_{m}(\tilde{\Lambda})U^T - U T_{m-1}(\tilde{\Lambda})U^T \\
+&= 2(U\tilde{\Lambda}U^T)T_{m}(U\tilde{\Lambda}U^T) - T_{m-1}(U\tilde{\Lambda}U^T) \\
+&= T_{m+1}(U\tilde{\Lambda} U^T) 
+\end{aligned}$
+> * **$ U\tilde{\Lambda}U^T=\tilde{L} $**
+$\begin{aligned}  
+U\tilde{\Lambda}U^T &= U(\frac{2}{\lambda_{max}}\Lambda-I_N)U^T \\
+&=\frac{2}{\lambda_{max}}U\Lambda U^T-U I_N U^T \\
+&=\frac{2}{\lambda_{max}}L - I_N \\
+&=\tilde{L}
+\end{aligned}$
 
+After approximating the spectral graph convolution formulation, we need to further simplyfy it. We have known the formulation:
+$$ g_{\theta'} * x \approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} $$
