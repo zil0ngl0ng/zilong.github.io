@@ -84,4 +84,4 @@ Z=\tilde{D}^{-1/2} \tilde{A}\tilde{D}^{-1/2}X\Theta,\Theta \in R^{C \times F},X 
 $$
 
 For example, for a 2-layers GCN models, if we want to finish the classfication task, the propagation rule can be expressed as follows:
-$$ Z=softmax(\tilde{A}Relu(\tilde{A}XW^{0})W^{(1)}) $$
+$$ Z=softmax(\hat{A}Relu(\hat{A}XW^{0})W^{(1)}) $$
