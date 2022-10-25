@@ -29,7 +29,7 @@ $$ g_{\theta'}(\Lambda) \approx \sum_{k=0}^{K} {\theta'_kT_k(\tilde{\Lambda})}  
 in which, $ \tilde{\Lambda}=\frac{2}{\lambda_{max}}\Lambda-I_N, \theta' \in R^k $ is the vector of Chebyshev coefficients. And the Chebyshev polynomials are recursively defined as $ T_k(x)=2xT_{k-1}(x)-T_{k-2}(x), T_0(x)=1, T_1(x)=x. $
 
 Combine the formulation $(1)$ and $(2)$, we can know that 
-$$ g_{\theta'} * x \approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} $$
+$$ g_{\theta'} * x \approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} \tag{3}$$
 in which, $ \tilde L = \frac{2}{\lambda_{max}}L-I_N $, and all the reduction process is following.
 > **The Reduction Process**
 $\begin{aligned}
@@ -60,4 +60,28 @@ U\tilde{\Lambda}U^T &= U(\frac{2}{\lambda_{max}}\Lambda-I_N)U^T \\
 \end{aligned}$
 
 After approximating the spectral graph convolution formulation, we need to further simplyfy it. We have known the formulation:
-$$ g_{\theta'} * x \approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} $$
+$$ g_{\theta'} * x \approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} \tag{4}$$
+
+In order to further simplyfy it, we let $ K=1,\lambda_{max}=2 $, so the formulation$(4)$ can be simplyfied as:
+$$\begin{aligned}
+g_{\theta'} * x &\approx \sum_{k=0}^{K}{\theta'_k T_k(\tilde{L})x} \\
+&=\theta'_0 T_0(\tilde{L})x + \theta'_1 T_1(\tilde{L})x \\
+&=\theta'_0 x + \theta'_1 (L-I_N)x \\
+&=\theta'_0 x - \theta'_1D^{-1/2}AD^{-1/2}x
+\end{aligned}$$
+
+Then we let $ \theta = \theta'_0 = -\theta'_1 $, so formulation can be expressed as:
+$$ g_{\theta'} * x \approx \theta(I_N+D^{-1/2}AD^{-1/2})x \tag{5}$$
+
+Note that $I_N+D^{-1/2}AD^{-1/2}$ has eigenvalues in the range [0, 2]. Repeated application of this operator can therefore lead to numerical instabilities and exploding/vanishing gradients when used in a deep neural network model. To alleviate this problem, we introduce the following renormalization trick $ I_N+D^{-1/2}AD^{-1/2} \longrightarrow \tilde{D}^{-1/2}\tilde{A} \tilde{D}^{-1/2}$ , with $\tilde{A} = A+I_N, \tilde{D}_{ii}=\sum_{j}A_{ij}$.
+
+After using the trick, formulation $(6)$ can be finally expressed as 
+$$ g_{\theta'} * x \approx \theta \tilde{D}^{-1/2}\tilde{A} \tilde{D}^{-1/2}x,x \in R^N \tag{6}$$
+
+To extend the $ x \in R^N $ to $ x \in R^{N \times F} $, we can express as the form of matrix, so finally we can reduct the propagation rule as formulation $(7)$:
+$$
+Z=\tilde{D}^{-1/2} \tilde{A}\tilde{D}^{-1/2}X\Theta,\Theta \in R^{C \times F},X \in R^{N \times C} \tag{7}
+$$
+
+For example, for a 2-layers GCN models, if we want to finish the classfication task, the propagation rule can be expressed as follows:
+$$ Z=softmax(\tilde{A}Relu(\tilde{A}XW^{0})W^{(1)}) $$
