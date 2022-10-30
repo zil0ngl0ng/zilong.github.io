@@ -58,3 +58,5 @@ The aggregate function can be very different. Some methods are $Mean$, $GCN$, $L
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;$\dots$
 &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;$Sgaelayer_n$ *(outsize,outsize)*
 **Classfication**:&emsp; $softmax$ *(outsize,classes)*
+
++ <u>Paper: Inductive Representation Learning on Large Graphs</u>

@@ -85,3 +85,5 @@ $$
 
 For example, for a 2-layers GCN models, if we want to finish the classfication task, the propagation rule can be expressed as follows:
 $$ Z=softmax(\hat{A}Relu(\hat{A}XW^{0})W^{(1)}) $$
+
++ <u>Paper: Semi-Supervised Classification with Graph Convolutional Networks</u>

@@ -66,3 +66,5 @@ W\vec{h}_N
 \end{bmatrix}\vec{a_2}\end{bmatrix}^T \\
 &=W\vec{h}\vec{a}_1 + (W\vec{h}\vec{a}_2)^T
 \end{aligned}$
+
++ <u>Paper: Graph Attention Networks</u>
