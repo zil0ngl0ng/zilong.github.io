@@ -71,15 +71,55 @@ $(1)$ For using attributes, we mainly focus on the attributes of nodes. For ever
 $(2)$ For using features, we may have the features of nodes via embedding layer or others. For node $v_i$ with feature $feature_i$, we can define the distance with two nodes $v_i, v_j$ as $d_{ij} = distance(v_i, v_j)$. Then we have two different methods. The first one is let the $k$ nearest nodes into one group, so we can get the hyperedge group $E_{feature}^{KNN_k} = \{N_{KNN_k}(V)|v \in V\}$. The second method is we classify the nodes whose distance $d_{ij} < d$ into one group. Then we can get the hyperedge group $E_{feature}^{distance_d} = \{N_{dis_d}(v)|v \in V\}$.
 
 ### Combination of Hyperedge Groups
-Here, several hyperedge groups can be generated using above strategies. Given generated hyperedge groups or natural hyperedge groups, we need to further combine them to generate the final hypergraph. Supposing there are $K$ hyperedge groups $\{E_1, E_2, \dots , E_K\}$, we can have $K$ incidence matrices $H_K \in \{0,1\}^{N \times M_k}$ respectively. And the fusion strategies can be divided into two classes: **Coequal Fusion** and **Adaptive Fusion**.
+Here, several hyperedge groups can be generated using above strategies. Given generated hyperedge groups or natural hyperedge groups, we need to further combine them to generate the final hypergraph. Supposing there are $K$ hyperedge groups $\{E_1, E_2, \dots , E_K\}$, we can have $K$ incidence matrices $H_k \in \{0,1\}^{N \times M_k}$ respectively. And the fusion strategies can be divided into two classes: ***Coequal Fusion*** and ***Adaptive Fusion***.
 **Coequal Fusion**
+This fusion strategy is simple. And we just concatenate the $K$ incidence matrix $H_k$ directly. So we can get the final hypergraph incidence matrix $H=H_1 || H_2 || H_3 || \dots || H_K$. And the visual illustration of it is shown in figure $4$.
+
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./HGNN/CoequalFusion.png" width = "50%" alt=""/>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      figure 4: Visual Illustration of Coequal Fusion
+  	</div>
+</center> 
 
 **Adaptive Fusion**
+Compared to coequal fusion, adaptive fusion is more complex but can make full use of the multi-modal hybrid high-order correlations. With this atrategy, each hyperedge group is associated with a trainable parameter, which can adaptively adjust the effect of multiple hyperedge groups on the final vertex embeddings. It is defined as:
+$$
+\left\{\begin{array}{l}
+w_k = copy(sigmod(\omega _k), M_k) \\
+W = diag(w_1^1,w_1^2,\dots,w_1^{M_1},\dots,w_K^1,\dots,w_K^{M_1})\\
+H=W\cdot (H_1 ||H_2 ||\dots ||H_k) 
+\end{array}\right.$$
+Where $\omega_k \in R$ is a trainable parameter for hyperedge group $E_ K$, vector $w_k = (w_k^1,w_k^2,\dots,w_k^{M_k}) \in R^{M_k}$ denotes the generated weight vector for hyperedge group $k$. And the visual illustraction is shown in figure $5$.
 
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
+    src="./HGNN/AdaptiveFusion.png" width = "50%" alt=""/>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      figure 5: Visual Illustration of Adaptive Fusion
+  	</div>
+</center> 
 
 ## Propagation Mechanism
-
-
+The propagation mechanism is the operation of hyperdege convolution. And the convolution for hypergraph can be reducted in two aspects: spectral and spatial domains.
+**Spectral Convolution on Hypergraph**
+The convolution in spectral domain can be reducted from spectral graph convolution, with the help of Chebyshv polynomials. Finally the  hyperedge convolution layer HGNNConv can be formulated by:
+$$ X^{(l+1)} = \sigma(D_v^{-1/2}HWD_e^{-1}H^TD_v^{-1/2}X^{(l)}\Theta^{(l)}) $$
+And $D_v$ and $D_e$ denote the diagonal matrices of vertex degrees and edge degrees respectively.
+**General Spatial Convolution on Hypergraph**
+Different from convolution in spectral domain, general spatial convolution is more similar to the operation of *Aggragate*. For a given hypergraph $G=\{V,E,W\}$, if we want to update the node $\alpha \in V$, we can aggregate from edge $\beta \in N_e(\alpha)$. For each hyperedge $\beta$, it has vertex inter-neighbor set $N_v(\beta)$, so we can make use of the info in $N_v(\beta)$ to update the hyperedge feature. After the definiton and reduction, the matrix format of $HGNNConv+$ can be written as: 
+$$ X^{(t+1)} = \sigma(D_v^{-1}HWD_e^{-1}H^TX^{(t)}\Theta^(t)) $$
 
 + <u>Paper: Hypergraph Neural Networks
 + Paper: HGNN⁺: General Hypergraph Neural Networks</u>
