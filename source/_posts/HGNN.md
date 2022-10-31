@@ -119,7 +119,7 @@ $$ X^{(l+1)} = \sigma(D_v^{-1/2}HWD_e^{-1}H^TD_v^{-1/2}X^{(l)}\Theta^{(l)}) $$
 And $D_v$ and $D_e$ denote the diagonal matrices of vertex degrees and edge degrees respectively.
 **General Spatial Convolution on Hypergraph**
 Different from convolution in spectral domain, general spatial convolution is more similar to the operation of *Aggragate*. For a given hypergraph $G=\{V,E,W\}$, if we want to update the node $\alpha \in V$, we can aggregate from edge $\beta \in N_e(\alpha)$. For each hyperedge $\beta$, it has vertex inter-neighbor set $N_v(\beta)$, so we can make use of the info in $N_v(\beta)$ to update the hyperedge feature. After the definiton and reduction, the matrix format of $HGNNConv+$ can be written as: 
-$$ X^{(t+1)} = \sigma(D_v^{-1}HWD_e^{-1}H^TX^{(t)}\Theta^(t)) $$
+$$ X^{(t+1)} = \sigma(D_v^{-1}HWD_e^{-1}H^TX^{(t)}\Theta^{(t)}) $$
 
-+ <u>Paper: Hypergraph Neural Networks
-+ Paper: HGNN⁺: General Hypergraph Neural Networks</u>
++ <u>Paper: Hypergraph Neural Networks</u>
++ <u>Paper: HGNN⁺: General Hypergraph Neural Networks</u>
