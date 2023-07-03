@@ -6,14 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>Tag: GAT | zilong&#39;s blog</title>
+  <title>筛选n以内的质数的一些方法 | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="zilong&#39;s blog">
-<meta property="og:url" content="http://example.com/tags/GAT/">
+  <meta name="description" content="筛出从1到 $n$ 之间的素数的算法，一些常见的方法以及理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="筛选n以内的质数的一些方法">
+<meta property="og:url" content="http://example.com/2029/01/03/Primes/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="筛出从1到 $n$ 之间的素数的算法，一些常见的方法以及理解。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/.com//%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
+<meta property="article:published_time" content="2029-01-03T07:46:06.000Z">
+<meta property="article:modified_time" content="2023-07-03T07:57:09.816Z">
+<meta property="article:tag" content="质数">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/.com//%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
   
@@ -152,71 +159,154 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Primes" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/25/GAT/" class="archive-article-date">
-  	<time datetime="2022-10-25T01:52:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/25/GAT/">Graph Attention Network(GAT)</a>
+    <h1 class="article-title" itemprop="name">
+      筛选n以内的质数的一些方法
     </h1>
   
 
-        <div class="article-info info-on-right">
+        
+        <a href="/2029/01/03/Primes/" class="archive-article-date">
+  	<time datetime="2029-01-03T07:46:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2029-01-03</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
           
+            <p>筛出从1到 $n$ 之间的素数的算法，一些常见的方法以及理解。<br><span id="more"></span></p>
+<h2 id="（1）普通筛选"><a href="#（1）普通筛选" class="headerlink" title="（1）普通筛选"></a>（1）普通筛选</h2><p>最普通的筛法，也就是将前 n 个正整数一个一个来判断是否为素数，并且在判断素数的时候要从 2 枚举到 这个数−1来判断。时间复杂度为$O(n^2)$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;++i)<span class="comment">//枚举1到n</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">bool</span> flg=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">2</span>;j&lt;i;++j)<span class="comment">//枚举2到i</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(i%j==<span class="number">0</span>)<span class="comment">//如果i%j=0,也就是i已经不为素数了</span></span><br><span class="line">		&#123;</span><br><span class="line">			flg=<span class="number">1</span>;<span class="comment">//打上标记</span></span><br><span class="line">			<span class="keyword">break</span>;<span class="comment">//跳出循环，不用再枚举了</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(flg==<span class="number">0</span>)<span class="comment">//如果没有被打上标记</span></span><br><span class="line">	prime[i]=<span class="number">1</span>;<span class="comment">//prime来标记这个数是否为素数。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="（2）普通筛选的优化"><a href="#（2）普通筛选的优化" class="headerlink" title="（2）普通筛选的优化"></a>（2）普通筛选的优化</h2><p>在判断素数的时候，不一定需要枚举到$i-1$，只需要枚举到$\sqrt{i}$ 。时间复杂度为$O(n\sqrt{n})$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;++i)<span class="comment">//枚举1到n</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">bool</span> flg=<span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">2</span>;j*j&lt;=i;++j)<span class="comment">//枚举2到i</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">if</span>(i%j==<span class="number">0</span>)<span class="comment">//如果i%j=0,也就是i已经不为素数了</span></span><br><span class="line">		&#123;</span><br><span class="line">			flg=<span class="number">1</span>;<span class="comment">//打上标记</span></span><br><span class="line">			<span class="keyword">break</span>;<span class="comment">//跳出循环，不用再枚举了</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span>(flg==<span class="number">0</span>)<span class="comment">//如果没有被打上标记</span></span><br><span class="line">	prime[i]=<span class="number">1</span>;<span class="comment">//prime来标记这个数是否为素数。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="（3）埃氏筛"><a href="#（3）埃氏筛" class="headerlink" title="（3）埃氏筛"></a>（3）埃氏筛</h2><p>我们发现，上面两种筛法会筛到许多没有意义的数，所以我们必须换一种思想方式。</p>
+<p>埃氏筛，就是先将 $prime$ 数组全部赋值为 $1$ (记得将 $prime[1]$ 赋值为 $0$ )。<br>仍然是要从 $1$ 枚举到 $n$  。我们先假设当前枚举到了 $i$ ，如果 $prime[i]=1$ ，也就是 $i$ 为质数，则我们可以知道 $i$ 的倍数均为合数，所以我们就将 $prime[i*k]$ 赋值为 $0$ 。最终筛完之后，如果 $prime[i]=1$ ，$i$ 就是质数。</p>
+<p>时间复杂度为 $O(nloglogn)$。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">memset</span>(prime,<span class="number">1</span>,<span class="built_in">sizeof</span>(prime));</span><br><span class="line">priem[<span class="number">1</span>]=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">1</span>;i&lt;=n;++i)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(prime[i])</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">2</span>;j*i&lt;=n;++j)</span><br><span class="line">		prime[i*j]=<span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="（4）欧拉筛（线性筛）"><a href="#（4）欧拉筛（线性筛）" class="headerlink" title="（4）欧拉筛（线性筛）"></a>（4）欧拉筛（线性筛）</h2><p>我们发现，埃氏筛已经很快了，但是还是有所不足。</p>
+<p>因为在埃氏筛中，有很多数有可能被筛到很多次（例如 6, 他就被 2 和 3 分别筛了一次）。 所以在欧拉筛中，我们就是在这个问题上面做了优化，使得所有合数只被筛了一次。</p>
+<p>首先，我们定义 $isNotprimes[i]$ 数组表示 $i$ 是否为合数，$primes$ 储存已经找到的所有质数。</p>
+<p>如果当前已经枚举到了 $i$ ，如果 $isNotprimes[i]=0$ ，也就是 $i$ 为质数。则 $primes[cnt+1]=i$。</p>
+<p>然后我们每一次枚举都要做这个循环：枚举 $j$ ，$st[primes[j]*i]=1$ 。（因为 $primes[j]$ 为质数， $i$ 就表示这个质数的多少倍，要把他筛掉，$primes[j]$是元要筛选掉的合数的最小质因子）。</p>
+<p><strong>注意，接下来是重点！</strong> 如果 $k$  $mod$  $primes[j] = 0$ ，跳出第二层循环。(因为欧拉筛默认每一个合数只能由他的最小质因数筛去，而满足以上条件之后，$primes[j]$ 就不是这个数字的最小质因数了，所以我们跳出第二层循环)。 因此，有了这一层优化之后，每一个合数就只能被筛掉一次了。</p>
+<p>复杂度为 $O(n)$ 。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">countPrimes</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">isNotprimes</span><span class="params">(n)</span></span>;                    <span class="comment">// 标记是否为合数</span></span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; primes;                             <span class="comment">// 存遍历到的质数，使用vector会很慢</span></span><br><span class="line">        <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">2</span>; i &lt; n; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!isNotprimes[i]) &#123;                      <span class="comment">// 质数</span></span><br><span class="line">                ++ans;</span><br><span class="line">                primes.<span class="built_in">push_back</span>(i);                    <span class="comment">// 添加到质数数组</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * 标记i的倍数为合数（筛掉）：“j &lt; primes.size()”条件可以省略，因为：</span></span><br><span class="line"><span class="comment">             *  - 如果i是质数，那么if语句的条件一定在primes最后一个元素成立，因为primes里最后一个数为刚加进去的i</span></span><br><span class="line"><span class="comment">             *  - 如果i是合数，那么一定会小于它的（已在primes中的）质数整除，primes里有他的质因子，所以if会成立</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; (<span class="type">long</span> <span class="type">long</span>)i * primes[j] &lt; n; ++j) &#123;</span><br><span class="line">                isNotprimes[i * primes[j]] = <span class="literal">true</span>;  <span class="comment">// 如果i为合数，且 “i的最小质因子*i” 未越界，则 “i的最小质因子*i” 得到的合数一定能被筛掉</span></span><br><span class="line">                <span class="comment">/**</span></span><br><span class="line"><span class="comment">                 * - 此if条件判断的作用：primes数组中的质数是递增的，当 “i%primes[j]==0” 成立（i能被primes[j]整除），</span></span><br><span class="line"><span class="comment">                 * 那么 “i*primes[j+1]” 这个合数肯定也可以被 “primes[j]” 筛掉，</span></span><br><span class="line"><span class="comment">                 * 因为i中的含有 “primes[j]” ，也就是 “i*primes[j+1]=(k*primes[j])*primes[j+1]”（其中k为i的另一个因子），</span></span><br><span class="line"><span class="comment">                 * 所以，当 “i%primes[j]==0” 成立时，需要终止，否则当i遍历到 “k*primes[j+1]” 时，</span></span><br><span class="line"><span class="comment">                 * “i*primes[j+1]” 也就是 “(k*primes[j])*primes[j+1]” 会再次被筛掉。</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                <span class="comment">/**</span></span><br><span class="line"><span class="comment">                 * - 那当前遍历的i如果是合数，会不会在之前没被筛掉？</span></span><br><span class="line"><span class="comment">                 * 答：不会，假设一个合数为z，它的最小质因子为x，z=x*y（其中，y为另一个因子，它可能为质数也可能为合数），必有x&lt;=y，</span></span><br><span class="line"><span class="comment">                 * 由于x&gt;1，因此有 y&lt;z，当i遍历到y，分两种情况：</span></span><br><span class="line"><span class="comment">                 * （1）当y质数，那么 “i%primes[j]==0” 的成立条件为 “primes[j]=y”，因此x必被primes[j]遍历到，也就是z必被筛掉。</span></span><br><span class="line"><span class="comment">                 * （2）当y为合数，那么此时y可类比成当前的z，也可分解成两个数 y=x_y*y_y（下划线后面的y表示是y的因子，x_y为y的最小质因子），</span></span><br><span class="line"><span class="comment">                 *      由于任何合数都能被分解成多个质因子相乘，y即是合数也是z的因子，因此y的因子也是z的因子，</span></span><br><span class="line"><span class="comment">                 *      由于x是z的最小质因子，因此必有x&lt;=x_y。</span></span><br><span class="line"><span class="comment">                 *      由于对于一个合数y，只要 “y*x_y&lt;n” ，也就是循环的条件成立（不越界），那么 x_y 必被primes[j]遍历到，</span></span><br><span class="line"><span class="comment">                 *      而 x&lt;x_y，primes数组又是从小到大遍历，因此 x 必被primes[j]遍历到，也就是z必被筛掉。</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                <span class="keyword">if</span> (i % primes[j] == <span class="number">0</span>) &#123;               <span class="comment">// 整除中断，保证合数被最小的质因数筛掉</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/.com//线性筛.png" width="60%" alt>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      figure 1: 线性筛过程图解
+      </div>
+</center> 
+
+<p>（1）线性筛图解举例说明为什么中断筛选</p>
+<p>图解模拟如上，当 $i=4$ 时，遍历 $primes$ 中的质数，当遍历到 $2$ 时，$8=4*2$ 被筛选掉了，而且因为 $4\%2==0$ 成立，所以停止筛选，令 $i=5$ 继续筛选。 </p>
+<p>如果，$i=4$ 时，遍历 $primes$ 到 $2$ 以后继续遍历，即遍历到 $3$ ，此时要筛选掉的数字为 $12=4<em>3$ ，但是 $4=2</em>2$，所以 $12=4<em>3=2</em>2<em>3=6</em>2$，所以当 $i=6$ 时，遍历 $primes$ 到 $2$ 的时候自然会筛选掉，会重复筛选，所以 $i=4$ 时，遍历 $primes$ 到 $2$ 以后停止遍历。</p>
+<p>（2）那当前遍历的 $i$ 如果是合数，会不会在之前没被筛掉？</p>
+<p>代码开头，$isNotprimes[i]$ 为 $false$ ，直接认定 $i$ 为质数，是否合理？是否在遍历到 $i$ 之前将其筛选掉？</p>
+<p>假如 $i$ 为合数，其最小因子为 $x$，另一个因子为 $y$ ，那么$i=x <em> y$。因为最小因子为 $x$，所以 $y\ge x$ ，所以 $i&gt;y \ge x$，所以当 $i$ 遍历到 $y$ 的时候，遍历 $primes$ 到 $x$ 的时候，肯定会把 $x </em> y$ 筛选掉；</p>
+
+          
+        
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GAT</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">质数</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
+        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2022/10/31/Transformer/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Transformer</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%881%EF%BC%89%E6%99%AE%E9%80%9A%E7%AD%9B%E9%80%89"><span class="toc-number">1.</span> <span class="toc-text">（1）普通筛选</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%882%EF%BC%89%E6%99%AE%E9%80%9A%E7%AD%9B%E9%80%89%E7%9A%84%E4%BC%98%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text">（2）普通筛选的优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%883%EF%BC%89%E5%9F%83%E6%B0%8F%E7%AD%9B"><span class="toc-number">3.</span> <span class="toc-text">（3）埃氏筛</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%EF%BC%884%EF%BC%89%E6%AC%A7%E6%8B%89%E7%AD%9B%EF%BC%88%E7%BA%BF%E6%80%A7%E7%AD%9B%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">（4）欧拉筛（线性筛）</span></a></li></ol>
+                    </div>
+                </span>
+            </div>
+        </div>
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -239,9 +329,9 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: false,
 		toc_hide_index: true,
