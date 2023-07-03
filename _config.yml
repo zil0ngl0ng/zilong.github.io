@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Durian_zzl's blog
+title: zilong's blog
 subtitle: ''
 description: ''
 keywords:
@@ -104,7 +104,7 @@ theme: yilia
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repository: https://github.com/durian-zzl/durian-zzl.github.io.git
+  repository: https://github.com/zil0ngl0ng/zilong.github.io.git
   branch: master
 
 jsonContent:
