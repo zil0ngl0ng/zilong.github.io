@@ -17,7 +17,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/.com//%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
 <meta property="article:published_time" content="2029-01-03T07:46:06.000Z">
-<meta property="article:modified_time" content="2023-07-03T07:57:09.816Z">
+<meta property="article:modified_time" content="2023-07-03T08:01:15.892Z">
 <meta property="article:tag" content="质数">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/.com//%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
@@ -211,11 +211,11 @@
 </center> 
 
 <p>（1）线性筛图解举例说明为什么中断筛选</p>
-<p>图解模拟如上，当 $i=4$ 时，遍历 $primes$ 中的质数，当遍历到 $2$ 时，$8=4*2$ 被筛选掉了，而且因为 $4\%2==0$ 成立，所以停止筛选，令 $i=5$ 继续筛选。 </p>
-<p>如果，$i=4$ 时，遍历 $primes$ 到 $2$ 以后继续遍历，即遍历到 $3$ ，此时要筛选掉的数字为 $12=4<em>3$ ，但是 $4=2</em>2$，所以 $12=4<em>3=2</em>2<em>3=6</em>2$，所以当 $i=6$ 时，遍历 $primes$ 到 $2$ 的时候自然会筛选掉，会重复筛选，所以 $i=4$ 时，遍历 $primes$ 到 $2$ 以后停止遍历。</p>
+<p>图解模拟如上，当 $i=4$ 时，遍历 $primes$ 中的质数，当遍历到 $2$ 时，$8=4 \times 2$ 被筛选掉了，而且因为 $4\%2==0$ 成立，所以停止筛选，令 $i=5$ 继续筛选。 </p>
+<p>如果，$i=4$ 时，遍历 $primes$ 到 $2$ 以后继续遍历，即遍历到 $3$ ，此时要筛选掉的数字为 $12=4\times 3$ ，但是 $4=2\times 2$，所以 $12=4\times 3=2\times 2\times 3=6\times 2$，所以当 $i=6$ 时，遍历 $primes$ 到 $2$ 的时候自然会筛选掉，会重复筛选，所以 $i=4$ 时，遍历 $primes$ 到 $2$ 以后停止遍历。</p>
 <p>（2）那当前遍历的 $i$ 如果是合数，会不会在之前没被筛掉？</p>
 <p>代码开头，$isNotprimes[i]$ 为 $false$ ，直接认定 $i$ 为质数，是否合理？是否在遍历到 $i$ 之前将其筛选掉？</p>
-<p>假如 $i$ 为合数，其最小因子为 $x$，另一个因子为 $y$ ，那么$i=x <em> y$。因为最小因子为 $x$，所以 $y\ge x$ ，所以 $i&gt;y \ge x$，所以当 $i$ 遍历到 $y$ 的时候，遍历 $primes$ 到 $x$ 的时候，肯定会把 $x </em> y$ 筛选掉；</p>
+<p>假如 $i$ 为合数，其最小因子为 $x$，另一个因子为 $y$ ，那么$i=x\times y$。因为最小因子为 $x$，所以 $y\ge x$ ，所以 $i&gt;y \ge x$，所以当 $i$ 遍历到 $y$ 的时候，遍历 $primes$ 到 $x$ 的时候，肯定会把 $x\times y$ 筛选掉；</p>
 
           
         
