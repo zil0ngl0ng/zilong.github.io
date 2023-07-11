@@ -11,7 +11,6 @@ mathjax: true
 <!-- more -->
 
 
-
 ## （1）普通筛选
 
 最普通的筛法，也就是将前 n 个正整数一个一个来判断是否为素数，并且在判断素数的时候要从 2 枚举到 这个数−1来判断。时间复杂度为$O(n^2)$。
@@ -138,11 +137,10 @@ public:
     }
 };
 ```
-
 <center>
     <img style="border-radius: 0.3125em;
     box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" 
-    src="./asset/线性筛.png" width = "60%" alt=""/>
+    src="./Primes/线性筛.png" width = "60%" alt=""/>
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
