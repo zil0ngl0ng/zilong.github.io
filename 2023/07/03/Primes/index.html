@@ -15,12 +15,12 @@
 <meta property="og:site_name" content="zilong&#39;s blog">
 <meta property="og:description" content="筛出从1到 $n$ 之间的素数的算法，一些常见的方法以及理解。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/.com//%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
+<meta property="og:image" content="http://example.com/2023/07/03/Primes/%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
 <meta property="article:published_time" content="2023-07-03T07:46:06.000Z">
-<meta property="article:modified_time" content="2023-07-07T02:39:32.893Z">
+<meta property="article:modified_time" content="2023-07-11T07:09:34.944Z">
 <meta property="article:tag" content="质数">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/.com//%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
+<meta name="twitter:image" content="http://example.com/2023/07/03/Primes/%E7%BA%BF%E6%80%A7%E7%AD%9B.png">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
   
@@ -200,7 +200,7 @@
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">countPrimes</span><span class="params">(<span class="type">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="function">vector&lt;<span class="type">bool</span>&gt; <span class="title">isNotprimes</span><span class="params">(n)</span></span>;                    <span class="comment">// 标记是否为合数</span></span><br><span class="line">        vector&lt;<span class="type">int</span>&gt; primes;                             <span class="comment">// 存遍历到的质数，使用vector会很慢</span></span><br><span class="line">        <span class="type">int</span> ans = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">2</span>; i &lt; n; ++i) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!isNotprimes[i]) &#123;                      <span class="comment">// 质数</span></span><br><span class="line">                ++ans;</span><br><span class="line">                primes.<span class="built_in">push_back</span>(i);                    <span class="comment">// 添加到质数数组</span></span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">/**</span></span><br><span class="line"><span class="comment">             * 标记i的倍数为合数（筛掉）：“j &lt; primes.size()”条件可以省略，因为：</span></span><br><span class="line"><span class="comment">             *  - 如果i是质数，那么if语句的条件一定在primes最后一个元素成立，因为primes里最后一个数为刚加进去的i</span></span><br><span class="line"><span class="comment">             *  - 如果i是合数，那么一定会小于它的（已在primes中的）质数整除，primes里有他的质因子，所以if会成立</span></span><br><span class="line"><span class="comment">             */</span></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; (<span class="type">long</span> <span class="type">long</span>)i * primes[j] &lt; n; ++j) &#123;</span><br><span class="line">                isNotprimes[i * primes[j]] = <span class="literal">true</span>;  <span class="comment">// 如果i为合数，且 “i的最小质因子*i” 未越界，则 “i的最小质因子*i” 得到的合数一定能被筛掉</span></span><br><span class="line">                <span class="comment">/**</span></span><br><span class="line"><span class="comment">                 * - 此if条件判断的作用：primes数组中的质数是递增的，当 “i%primes[j]==0” 成立（i能被primes[j]整除），</span></span><br><span class="line"><span class="comment">                 * 那么 “i*primes[j+1]” 这个合数肯定也可以被 “primes[j]” 筛掉，</span></span><br><span class="line"><span class="comment">                 * 因为i中的含有 “primes[j]” ，也就是 “i*primes[j+1]=(k*primes[j])*primes[j+1]”（其中k为i的另一个因子），</span></span><br><span class="line"><span class="comment">                 * 所以，当 “i%primes[j]==0” 成立时，需要终止，否则当i遍历到 “k*primes[j+1]” 时，</span></span><br><span class="line"><span class="comment">                 * “i*primes[j+1]” 也就是 “(k*primes[j])*primes[j+1]” 会再次被筛掉。</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                <span class="comment">/**</span></span><br><span class="line"><span class="comment">                 * - 那当前遍历的i如果是合数，会不会在之前没被筛掉？</span></span><br><span class="line"><span class="comment">                 * 答：不会，假设一个合数为z，它的最小质因子为x，z=x*y（其中，y为另一个因子，它可能为质数也可能为合数），必有x&lt;=y，</span></span><br><span class="line"><span class="comment">                 * 由于x&gt;1，因此有 y&lt;z，当i遍历到y，分两种情况：</span></span><br><span class="line"><span class="comment">                 * （1）当y质数，那么 “i%primes[j]==0” 的成立条件为 “primes[j]=y”，因此x必被primes[j]遍历到，也就是z必被筛掉。</span></span><br><span class="line"><span class="comment">                 * （2）当y为合数，那么此时y可类比成当前的z，也可分解成两个数 y=x_y*y_y（下划线后面的y表示是y的因子，x_y为y的最小质因子），</span></span><br><span class="line"><span class="comment">                 *      由于任何合数都能被分解成多个质因子相乘，y即是合数也是z的因子，因此y的因子也是z的因子，</span></span><br><span class="line"><span class="comment">                 *      由于x是z的最小质因子，因此必有x&lt;=x_y。</span></span><br><span class="line"><span class="comment">                 *      由于对于一个合数y，只要 “y*x_y&lt;n” ，也就是循环的条件成立（不越界），那么 x_y 必被primes[j]遍历到，</span></span><br><span class="line"><span class="comment">                 *      而 x&lt;x_y，primes数组又是从小到大遍历，因此 x 必被primes[j]遍历到，也就是z必被筛掉。</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                <span class="keyword">if</span> (i % primes[j] == <span class="number">0</span>) &#123;               <span class="comment">// 整除中断，保证合数被最小的质因数筛掉</span></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/.com//线性筛.png" width="60%" alt>
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="线性筛.png" width="60%" alt>
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -570,5 +570,22 @@ MathJax.Hub.Queue(function() {
 
 </div>
   </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<!-- <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
 </body>
 </html>
