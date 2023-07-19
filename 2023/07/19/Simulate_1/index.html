@@ -6,13 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>Archives | zilong&#39;s blog</title>
+  <title>一道模拟题—坐标处理挺有意思 | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="zilong&#39;s blog">
-<meta property="og:url" content="http://example.com/archives/">
+  <meta name="description" content="一道模拟题，感觉这里的坐标处理挺有意思的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一道模拟题—坐标处理挺有意思">
+<meta property="og:url" content="http://example.com/2023/07/19/Simulate_1/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="一道模拟题，感觉这里的坐标处理挺有意思的。">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-07-19T01:53:06.000Z">
+<meta property="article:modified_time" content="2023-07-19T01:53:53.990Z">
+<meta property="article:tag" content="模拟题">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
@@ -152,36 +157,72 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-Simulate_1" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      一道模拟题—坐标处理挺有意思
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2023" class="archive-year">2023</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2023/07/19/Simulate_1/" class="archive-article-date">
+
+        
+        <a href="/2023/07/19/Simulate_1/" class="archive-article-date">
   	<time datetime="2023-07-19T01:53:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-07-19</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2023/07/19/Simulate_1/">一道模拟题—坐标处理挺有意思</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
           
+            <p>一道模拟题，感觉这里的坐标处理挺有意思的。<br><span id="more"></span></p>
+<p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/walking-robot-simulation/description/">模拟行走机器人</a></p>
+<blockquote>
+<p>机器人在一个无限大小的 XY 网格平面上行走，从点 <code>(0, 0)</code> 处开始出发，面向北方。该机器人可以接收以下三种类型的命令 <code>commands</code> ：</p>
+<ul>
+<li><code>-2</code> ：向左转 <code>90</code> 度</li>
+<li><code>-1</code> ：向右转 <code>90</code> 度</li>
+<li><code>1 &lt;= x &lt;= 9</code> ：向前移动 <code>x</code> 个单位长度</li>
+</ul>
+<p>在网格上有一些格子被视为障碍物 <code>obstacles</code> 。第 <code>i</code> 个障碍物位于网格点  <code>obstacles[i] = (xi, yi)</code> 。</p>
+<p>机器人无法走到障碍物上，它将会停留在障碍物的前一个网格方块上，但仍然可以继续尝试进行该路线的其余部分。</p>
+<p>返回从原点到机器人所有经过的路径点（坐标为整数）的最大欧式距离的平方。（即，如果距离为 <code>5</code> ，则返回 <code>25</code> ）</p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>北表示 <code>+Y</code> 方向。</li>
+<li>东表示 <code>+X</code> 方向。</li>
+<li>南表示 <code>-Y</code> 方向。</li>
+<li>西表示 <code>-X</code> 方向。</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">输入：commands = [4,-1,3], obstacles = []</span><br><span class="line">输出：25</span><br><span class="line">解释：</span><br><span class="line">机器人开始位于 (0, 0)：</span><br><span class="line">1. 向北移动 4 个单位，到达 (0, 4)</span><br><span class="line">2. 右转</span><br><span class="line">3. 向东移动 3 个单位，到达 (3, 4)</span><br><span class="line">距离原点最远的是 (3, 4) ，距离为 32 + 42 = 25</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">输入：commands = [4,-1,4,-2,4], obstacles = [[2,4]]</span><br><span class="line">输出：65</span><br><span class="line">解释：机器人开始位于 (0, 0)：</span><br><span class="line">1. 向北移动 4 个单位，到达 (0, 4)</span><br><span class="line">2. 右转</span><br><span class="line">3. 向东移动 1 个单位，然后被位于 (2, 4) 的障碍物阻挡，机器人停在 (1, 4)</span><br><span class="line">4. 左转</span><br><span class="line">5. 向北走 4 个单位，到达 (1, 8)</span><br><span class="line">距离原点最远的是 (1, 8) ，距离为 12 + 82 = 65</span><br></pre></td></tr></table></figure>
+<p><strong>提示：</strong></p>
+<ul>
+<li><code>1 &lt;= commands.length &lt;= 104</code></li>
+<li><code>commands[i]</code> is one of the values in the list <code>[-2,-1,1,2,3,4,5,6,7,8,9]</code>.</li>
+<li><code>0 &lt;= obstacles.length &lt;= 104</code></li>
+<li><code>-3 * 104 &lt;= xi, yi &lt;= 3 * 104</code></li>
+<li>答案保证小于 <code>231</code></li>
+</ul>
+</blockquote>
+<p><strong>方法：哈希表</strong></p>
+<p>题目给出一个在点$(0,0)$，并面向北方的机器人。现在有一个大小为 $n$ 的命令数组 $commands$ 来操作机器人的移动，和一个大小为 $m$ 的障碍物数组 $obstacles$。现在我们通过 $commands$ 来模拟机器人的移动，并用一个哈希表来存储每一个障碍物放置点。当机器人的指令为向前移动时，我们尝试往前移动对应的次数——若往前一个单位不为障碍物放置点（即不在哈希表中），则机器人向前移动一个单位，否则机器人保持原位不变。</p>
+<p>在机器人移动的过程中记录从原点到机器人所有经过的整数路径点的最大欧式距离的平方即为最后的答案。</p>
+<p>在代码实现的过程中，对于机器人转向和向前移动的操作，我们可以用一个方向数组 $dirs={[-1,0],[0,1],[1,0],[0,-1]}$ 来现实。若当前机器人的坐标为 $(x,y)$ ，当前方向的标号为 $d$，则往前移动一单位的操作为 $x=x+dirs[d][0],y=y+dirs[i][1]$ 。向左转的操作为 $d=(d+3) mod 4$，向右转的操作为 $d=(d+1)mod4$。</p>
+<p><strong>题目有意思的地方在于对坐标的处理上，将每一个坐标唯一对应到一个数上，通过查找数来确定是否存在该坐标的障碍物。</strong></p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">robotSim</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; commands, vector&lt;vector&lt;<span class="type">int</span>&gt;&gt;&amp; obstacles)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> dirs[<span class="number">4</span>][<span class="number">2</span>] = &#123;&#123;<span class="number">-1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>&#125;, &#123;<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">-1</span>&#125;&#125;;</span><br><span class="line">        <span class="type">int</span> px = <span class="number">0</span>, py = <span class="number">0</span>, d = <span class="number">1</span>;</span><br><span class="line">        unordered_set&lt;<span class="type">int</span>&gt; mp;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> &amp;obstacle : obstacles) &#123;</span><br><span class="line">            mp.<span class="built_in">emplace</span>(obstacle[<span class="number">0</span>] * <span class="number">60001</span> + obstacle[<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> c : commands) &#123;</span><br><span class="line">            <span class="keyword">if</span> (c &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                d += c == <span class="number">-1</span> ? <span class="number">1</span> : <span class="number">-1</span>;</span><br><span class="line">                d %= <span class="number">4</span>;</span><br><span class="line">                <span class="keyword">if</span> (d &lt; <span class="number">0</span>) &#123;</span><br><span class="line">                    d += <span class="number">4</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; c; i++) &#123;</span><br><span class="line">                    <span class="keyword">if</span> (mp.<span class="built_in">count</span>((px + dirs[d][<span class="number">0</span>]) * <span class="number">60001</span> + py + dirs[d][<span class="number">1</span>])) &#123;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    px += dirs[d][<span class="number">0</span>];</span><br><span class="line">                    py += dirs[d][<span class="number">1</span>];</span><br><span class="line">                    res = <span class="built_in">max</span>(res, px * px + py * py);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+          
+        
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -193,7 +234,7 @@
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
@@ -206,370 +247,66 @@
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2023/07/07/Simulate/" class="archive-article-date">
-  	<time datetime="2023-07-07T02:36:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-07-07</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2023/07/07/Simulate/">一道复杂的模拟题</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">模拟题</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2023/07/03/Primes/" class="archive-article-date">
-  	<time datetime="2023-07-03T07:46:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-07-03</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2023/07/03/Primes/">筛选n以内的质数的一些方法</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">质数</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
       
-        </div></section>
+
       
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/31/Transformer/" class="archive-article-date">
-  	<time datetime="2022-10-31T12:43:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/31/Transformer/">Transformer</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Transformer</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/27/HGNN/" class="archive-article-date">
-  	<time datetime="2022-10-27T02:54:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-27</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2023/07/07/Simulate/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">一道复杂的模拟题</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/27/HGNN/">Hypergraph Neural Network(HGNN+)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">HGNN</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    目录，不存在的…
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/25/GraphSAGE/" class="archive-article-date">
-  	<time datetime="2022-10-25T09:16:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/25/GraphSAGE/">Graph Sample and Aggregate(GraphSAGE)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">GraphSAGE</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/25/GAT/" class="archive-article-date">
-  	<time datetime="2022-10-25T01:52:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/25/GAT/">Graph Attention Network(GAT)</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GAT</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/20/GCN/" class="archive-article-date">
-  	<time datetime="2022-10-19T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/20/GCN/">Graph Convolution Network(GCN)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GCN</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -592,8 +329,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
