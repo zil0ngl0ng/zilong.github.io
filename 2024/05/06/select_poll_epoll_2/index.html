@@ -6,14 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>Archives: 2022 | zilong&#39;s blog</title>
+  <title>select/poll/epoll —— select | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="zilong&#39;s blog">
-<meta property="og:url" content="http://example.com/archives/2022/">
+  <meta name="description" content="I&#x2F;O多路复用 —— select()函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="select&#x2F;poll&#x2F;epoll —— select">
+<meta property="og:url" content="http://example.com/2024/05/06/select_poll_epoll_2/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="I&#x2F;O多路复用 —— select()函数">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/IO2_f1.png">
+<meta property="og:image" content="http://example.com/images/IO2_f2.png">
+<meta property="og:image" content="http://example.com/images/IO2_f3.png">
+<meta property="article:published_time" content="2024-05-06T03:36:17.000Z">
+<meta property="article:modified_time" content="2024-05-06T07:04:37.736Z">
+<meta property="article:tag" content="I&#x2F;O多路复用">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/IO2_f1.png">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
   
@@ -152,267 +161,270 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-select_poll_epoll_2" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      select/poll/epoll —— select
+    </h1>
+  
+
+        
+        <a href="/2024/05/06/select_poll_epoll_2/" class="archive-article-date">
+  	<time datetime="2024-05-06T03:36:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-05-06</time>
+</a>
+        
+      </header>
     
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+          
+            <p>I/O多路复用 —— select()函数<br><span id="more"></span></p>
+<h1 id="select函数"><a href="#select函数" class="headerlink" title="select函数"></a>select函数</h1><h2 id="函数原型"><a href="#函数原型" class="headerlink" title="函数原型"></a>函数原型</h2><p>使用select这种IO多路转接方式需要调用一个同名函数select，这个函数是跨平台的，Linux、Mac、Windows都是支持的。调用此函数，可以委托内核帮助我们检测若干个文件描述符的状态，<font color="red">其实就是检测文件描述符读写缓冲区的状态</font>。</p>
+<p>1个监听的描述符，N个通信的描述符。</p>
+<ul>
+<li><p>读缓冲区：检测里边有没有数据，如果有数据该缓冲区对应的文件描述符就绪</p>
+</li>
+<li><p>写缓冲区：检测写缓冲区是否可以写(有没有容量)，如果有容量可以写，缓冲区对应的文件描述符就绪</p>
+</li>
+<li><p>读写异常：检测读写缓冲区是否有异常，如果有该缓冲区对应的文件描述符就绪</p>
+</li>
+</ul>
+<p>委托检测的文件描述符被遍历检测完毕之后，已就绪的这些满足条件的文件描述符会通过select()的参数分3个集合传出，程序猿得到这几个集合之后就可以分情况依次处理了。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/select.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">timeval</span>&#123;</span></span><br><span class="line">	<span class="type">time_t</span>		tv_sec; <span class="comment">/* seconds */</span></span><br><span class="line">	<span class="type">suseconds_t</span> tv_usec; <span class="comment">/* microseconds */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">select</span><span class="params">(<span class="type">int</span> nfds, fd_set *readfds, fd_set *writefds,</span></span><br><span class="line"><span class="params">          fd_set *exceptfds, <span class="keyword">struct</span> timeval * timeout)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>函数参数</p>
+<ul>
+<li><p>nfds：委托内核检测的三个集合中最大的文件描述符 + 1</p>
+<ul>
+<li><p>内核需要线性遍历这些集合中的文件描述符，这个值是循环结束的条件</p>
+</li>
+<li><p>在windows中无效，置为-1即可</p>
+</li>
+</ul>
+</li>
+<li>readfds：文件描述符的集合，内核只检测这个集合中文件描述符号对应的读缓冲区<ul>
+<li><font color="red">传入传出参数</font>，读集合一般情况下都需要检测，这样才知道 </li>
+</ul>
+</li>
+<li>writefds：文件描述符的集合，内核只检测这个集合中文件描述符号对应的写缓冲区<ul>
+<li><font color="red">传入传出参数</font>，如果不需要这个参数可以指定为NULL</li>
+</ul>
+</li>
+<li>exceptfds：文件描述符集合，内核检测该集合中的文件描述符是否有异常<ul>
+<li><font color="red">传入传出参数</font>，如果不需要这个参数可以指定为NULL</li>
+</ul>
+</li>
+<li>timeout：超时时长，用来强制解除select()函数的阻塞的<ul>
+<li>NULL：函数检测不到就绪的文件描述符会一直阻塞</li>
+<li>等待固定时长（秒）：函数检测不到就绪的文件描述符，在指定时长之后强制解除阻塞，函数返回0</li>
+<li>不等待：函数不会阻塞，直接将该参数对应的结构体初始化为0即可</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>函数返回值：</p>
+<ul>
+<li>大于0：成功，返回集合中满足条件的文件描述符的总个数</li>
+<li>等于-1：函数调用失败</li>
+<li>等于0：超时，没有检测到就绪的文件描述符</li>
+</ul>
+</li>
+<li><p>具体分两步：</p>
+<ul>
+<li>select()  把数据给到内核，内核会把三个集合拷贝一份，基于线性表检测三个集合里对应的读、写以及异常事件，</li>
+<li>检测到会传出对应的集合（写入指针指向的内存地址，数据被内核修改了）。</li>
+</ul>
+</li>
+</ul>
+<p>另外初始化fd_set类型的参数还需要使用相关的一些列操作函数，具体如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将文件描述符fd从set集合中删除 == 将fd对应的标志位设置为0        </span></span><br><span class="line"><span class="type">void</span> <span class="title function_">FD_CLR</span><span class="params">(<span class="type">int</span> fd, fd_set *<span class="built_in">set</span>)</span>;</span><br><span class="line"><span class="comment">// 判断文件描述符fd是否在set集合中 == 读一下fd对应的标志位到底是0还是1</span></span><br><span class="line"><span class="type">int</span>  <span class="title function_">FD_ISSET</span><span class="params">(<span class="type">int</span> fd, fd_set *<span class="built_in">set</span>)</span>;</span><br><span class="line"><span class="comment">// 将文件描述符fd添加到set集合中 == 将fd对应的标志位设置为1</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">FD_SET</span><span class="params">(<span class="type">int</span> fd, fd_set *<span class="built_in">set</span>)</span>;</span><br><span class="line"><span class="comment">// 将set集合中, 所有文件文件描述符对应的标志位设置为0, 集合中没有添加任何文件描述符</span></span><br><span class="line"><span class="type">void</span> <span class="title function_">FD_ZERO</span><span class="params">(fd_set *<span class="built_in">set</span>)</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="细节描述"><a href="#细节描述" class="headerlink" title="细节描述"></a>细节描述</h2><p>在<code>select()</code>函数中第2、3、4个参数都是<code>fd_set</code>类型，它表示一个文件描述符的集合，类似于信号集 <code>sigset_t</code>，这个类型的数据有128个字节，也就是1024个标志位，和内核中文件描述符表中的文件描述符个数是一样的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sizeof</span>(fd_set) = <span class="number">128</span> 字节 * <span class="number">8</span> = <span class="number">1024</span> bit      <span class="comment">// int [32]</span></span><br></pre></td></tr></table></figure>
+<p>这并不是巧合，而是故意为之。这块内存中的每一个bit 和 文件描述符表中的每一个文件描述符是一一对应的关系，这样就可以使用最小的存储空间将要表达的意思描述出来了。</p>
+<p>下图中的fd_set中存储了要委托内核检测读缓冲区的文件描述符集合。</p>
+<ul>
+<li>如果集合中的标志位为0代表不检测这个文件描述符状态</li>
+<li>如果集合中的标志位为1代表检测这个文件描述符状态</li>
+</ul>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/images/IO2_f1.png" width="50%" alt>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      <!-- figure 1: 套接字通信的文件描述符 -->
+      </div>
+</center> 
+
+<p>内核在遍历这个读集合的过程中，如果被检测的文件描述符对应的读缓冲区中没有数据，内核将修改这个文件描述符在读集合<code>fd_set</code>中对应的标志位，改为<code>0</code>，如果有数据那么这个标志位的值不变，还是<code>1</code>。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/images/IO2_f2.png" width="50%" alt>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      <!-- figure 1: 套接字通信的文件描述符 -->
+      </div>
+</center> 
+
+<p>当select()函数解除阻塞之后，被内核修改过的读集合通过参数传出，此时集合中只要标志位的值为1，那么它对应的文件描述符肯定是就绪的，我们就可以基于这个文件描述符和客户端建立新连接或者通信了。</p>
+<h2 id="并发处理"><a href="#并发处理" class="headerlink" title="并发处理"></a>并发处理</h2><p>如果在服务器基于select实现并发，其处理流程如下：</p>
+<p>1、创建监听的套接字 lfd = socket()；</p>
+<p>2、将监听的套接字和本地的IP和端口绑定 bind()；</p>
+<p>3、给监听的套接字设置监听 listen()；</p>
+<p>4、创建一个文件描述符集合 fd_set，用于存储需要检测读事件的所有的文件描述符</p>
+<ul>
+<li><p>通过 FD_ZERO() 初始化</p>
+</li>
+<li><p>通过 FD_SET() 将监听的文件描述符放入检测的读集合中</p>
+</li>
+</ul>
+<p>5、循环调用select()，周期性的对所有的文件描述符进行检测</p>
+<p>6、select() 解除阻塞返回，得到内核传出的满足条件的就绪的文件描述符集合</p>
+<ul>
+<li>通过FD_ISSET() 判断集合中的标志位是否为 1<ul>
+<li>如果这个文件描述符是监听的文件描述符，调用 accept() 和客户端建立连接<ul>
+<li>将得到的新的通信的文件描述符，通过FD_SET() 放入到检测集合中</li>
+</ul>
+</li>
+<li>如果这个文件描述符是通信的文件描述符，调用通信函数和客户端通信<ul>
+<li>如果客户端和服务器断开了连接，使用FD_CLR()将这个文件描述符从检测集合中删除</li>
+<li>如果没有断开连接，正常通信即可</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>7、重复第6步</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/images/IO2_f3.png" width="50%" alt>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      <!-- figure 1: 套接字通信的文件描述符 -->
+      </div>
+</center> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+          
+        
+    </div>
+    <div class="article-info article-info-index">
       
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/31/Transformer/" class="archive-article-date">
-  	<time datetime="2022-10-31T12:43:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-31</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/31/Transformer/">Transformer</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Transformer</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">I/O多路复用</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 	<div class="article-category tagcloud">
 		<i class="icon-book icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
+        			<a href="/categories/C-C//" class="article-tag-list-link color1">C/C++</a>
         		</li>
       		
 		</ul>
 	</div>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/27/HGNN/" class="archive-article-date">
-  	<time datetime="2022-10-27T02:54:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-27</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2024/05/05/select_poll_epoll_1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">select/poll/epoll —— 套接字通信</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/27/HGNN/">Hypergraph Neural Network(HGNN+)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">HGNN</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
+        
+        
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#select%E5%87%BD%E6%95%B0"><span class="toc-number">1.</span> <span class="toc-text">select函数</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8E%9F%E5%9E%8B"><span class="toc-number">1.1.</span> <span class="toc-text">函数原型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%86%E8%8A%82%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.2.</span> <span class="toc-text">细节描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86"><span class="toc-number">1.3.</span> <span class="toc-text">并发处理</span></a></li></ol></li></ol>
+                    </div>
+                </span>
+            </div>
         </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/25/GraphSAGE/" class="archive-article-date">
-  	<time datetime="2022-10-25T09:16:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/25/GraphSAGE/">Graph Sample and Aggregate(GraphSAGE)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">GraphSAGE</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
+        
+    </div>
+</aside>
 
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/25/GAT/" class="archive-article-date">
-  	<time datetime="2022-10-25T01:52:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/25/GAT/">Graph Attention Network(GAT)</a>
-    </h1>
-  
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GAT</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2022/10/20/GCN/" class="archive-article-date">
-  	<time datetime="2022-10-19T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-20</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2022/10/20/GCN/">Graph Convolution Network(GCN)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GCN</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
   
-    </div></section>
   
 
-    
+  
+
+  
+
+  
 
 
           </div>
@@ -435,8 +447,8 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,
