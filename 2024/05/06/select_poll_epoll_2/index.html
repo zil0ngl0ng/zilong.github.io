@@ -19,7 +19,7 @@
 <meta property="og:image" content="http://example.com/images/IO2_f2.png">
 <meta property="og:image" content="http://example.com/images/IO2_f3.png">
 <meta property="article:published_time" content="2024-05-06T03:36:17.000Z">
-<meta property="article:modified_time" content="2024-05-06T07:04:37.736Z">
+<meta property="article:modified_time" content="2024-05-06T07:49:40.153Z">
 <meta property="article:tag" content="I&#x2F;O多路复用">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/images/IO2_f1.png">
@@ -317,23 +317,17 @@
       </div>
 </center> 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<p>客户端不需要使用IO多路转接进行处理，因为客户端和服务器的对应关系是 1：N，也就是说客户端是比较专一的，只能和一个连接成功的服务器通信。</p>
+<p>虽然使用select这种IO多路转接技术可以降低系统开销，提高程序效率，但是它也有局限性：</p>
+<ol>
+<li>待检测集合（第2、3、4个参数）需要频繁的在用户区和内核区之间进行数据的拷贝，效率低</li>
+<li>内核对于select传递进来的待检测集合的检测方式是线性的<ul>
+<li>如果集合内待检测的文件描述符很多，检测效率会比较低</li>
+<li>如果集合内待检测的文件描述符相对较少，检测效率会比较高</li>
+</ul>
+</li>
+<li>使用select能够检测的最大文件描述符个数有上限，默认是1024，这是在内核中被写死了的。</li>
+</ol>
 
           
         
@@ -375,6 +369,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2024/05/06/select_poll_epoll_3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          select/poll/epoll —— poll
+        
+      </div>
+    </a>
   
   
     <a href="/2024/05/05/select_poll_epoll_1/" id="article-nav-older" class="article-nav-link-wrap">
@@ -683,5 +686,22 @@ MathJax.Hub.Queue(function() {
 
 </div>
   </div>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        tex2jax: {
+            inlineMath: [ ["$","$"], ["\\(","\\)"] ],
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+            processEscapes: true
+        }
+    });
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax();
+        for (var i = 0; i < all.length; ++i)
+            all[i].SourceElement().parentNode.className += ' has-jax';
+    });
+</script>
+<!-- <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
 </body>
 </html>

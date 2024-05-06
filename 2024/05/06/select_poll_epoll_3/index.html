@@ -6,13 +6,18 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>zilong&#39;s blog</title>
+  <title>select/poll/epoll —— poll | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="zilong&#39;s blog">
-<meta property="og:url" content="http://example.com/">
+  <meta name="description" content="I&#x2F;O多路复用 —— poll()函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="select&#x2F;poll&#x2F;epoll —— poll">
+<meta property="og:url" content="http://example.com/2024/05/06/select_poll_epoll_3/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="I&#x2F;O多路复用 —— poll()函数">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-05-06T05:36:17.000Z">
+<meta property="article:modified_time" content="2024-05-06T08:06:36.103Z">
+<meta property="article:tag" content="I&#x2F;O多路复用">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
@@ -152,16 +157,14 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-select_poll_epoll_3" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-select_poll_epoll_3" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2024/05/06/select_poll_epoll_3/">select/poll/epoll —— poll</a>
+    <h1 class="article-title" itemprop="name">
+      select/poll/epoll —— poll
     </h1>
   
 
@@ -175,7 +178,46 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-          		<p>I/O多路复用 —— poll()函数<br></p>
+          
+            <p>I/O多路复用 —— poll()函数<br><span id="more"></span></p>
+<h1 id="poll函数"><a href="#poll函数" class="headerlink" title="poll函数"></a>poll函数</h1><p>poll的机制与select类似，与select在本质上没有多大差别，使用方法也类似，下面的是对于二者的对比：</p>
+<ul>
+<li>内核对应文件描述符的检测也是以线性的方式进行轮询，根据描述符的状态进行处理</li>
+<li>poll和select检测的文件描述符集合会在检测过程中频繁的进行用户区和内核区的拷贝，它的开销随着文件描述符数量的增加而线性增大，从而效率也会越来越低。</li>
+<li>select检测的文件描述符个数上限是1024，poll没有最大文件描述符数量的限制</li>
+<li>select可以跨平台使用，poll只能在Linux平台使用</li>
+</ul>
+<p>poll函数的函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;poll.h&gt;</span></span></span><br><span class="line"><span class="comment">// 每个委托poll检测的fd都对应这样一个结构体</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> &#123;</span></span><br><span class="line">    <span class="type">int</span>   fd;         <span class="comment">/* 委托内核检测的文件描述符 */</span></span><br><span class="line">    <span class="type">short</span> events;     <span class="comment">/* 委托内核检测文件描述符的什么事件 */</span></span><br><span class="line">    <span class="type">short</span> revents;    <span class="comment">/* 文件描述符实际发生的事件 -&gt; 传出 */</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">pollfd</span> <span class="title">myfd</span>[100];</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">poll</span><span class="params">(<span class="keyword">struct</span> pollfd *fds, <span class="type">nfds_t</span> nfds, <span class="type">int</span> timeout)</span>;</span><br></pre></td></tr></table></figure>
+<p><table align="center"><tr>    <td>事件</td>    <td>常量</td>    <td>作为events的值</td>    <td>作为revents的值</td>    <td>说明</td></tr><tr>    <td rowspan="4">读事件</td>    <td>POLLIN</td>    <td>√</td>    <td>√</td>    <td>普通或优先带数据可读</td></tr><tr>    <td>POLLRDNORM</td>    <td>√</td>    <td>√</td>    <td>普通数据可读</td></tr><tr>    <td>POLLRDBAND</td>    <td>√</td>    <td>√</td>    <td>优先级带数据可读</td></tr><tr>    <td>POLLPRI</td>    <td>√</td>    <td>√</td>    <td>高优先级数据可读</td></tr><tr>    <td rowspan="3">写事件</td>    <td>POLLOUT</td>    <td>√</td>    <td>√</td>    <td>普通或优先带数据可读</td></tr><tr>    <td>POLLWRNORM</td>    <td>√</td>    <td>√</td>    <td>普通数据可读</td></tr><tr>    <td>POLLWRBAND</td>    <td>√</td>    <td>√</td>    <td>优先级带数据可读</td></tr><tr>    <td rowspan="3">错误事件</td>    <td>POLLERR</td>    <td> </td>    <td>√</td>    <td>发生错误</td></tr><tr>    <td>POLLHUP</td>    <td> </td>    <td>√</td>    <td>发生挂起</td></tr><tr>    <td>POLLNVAL</td>    <td> </td>    <td>√</td>    <td>描述不是打开的文件</td></tr></table></p>
+<ul>
+<li><p>函数参数</p>
+<ul>
+<li><p>fds：这是一个<font color="red">struct pollfd</font>类型的数组, 里边存储了待检测的文件描述符的信息，这个数组中有三个成员：</p>
+<ul>
+<li>fd：委托内核检测的文件描述符</li>
+<li>events：委托内核检测的fd事件（输入、输出、错误），每一个事件有多个取值</li>
+<li>revents：这是一个传出参数，数据由内核写入，存储内核检测之后的结果</li>
+</ul>
+</li>
+<li><p>nfds：这是第一个参数数组中最后一个有效元素的下标 + 1（也可以指定参数1数组的元素总个数）</p>
+</li>
+<li>timeout：指定poll函数的阻塞时长<ul>
+<li>-1：一直阻塞，直到检测的集合中有就绪的文件描述符（有事件产生）解除阻塞</li>
+<li>0：不阻塞，不管检测集合中有没有已就绪的文件描述符，函数马上返回</li>
+<li>大于0：阻塞指定的毫秒（ms）数之后，解除阻塞</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>函数返回值</p>
+<ul>
+<li>失败：返回-1</li>
+<li>成功：返回一个大于0的整数，表示检测的集合中已就绪的文件描述符的总个数</li>
+</ul>
+</li>
+</ul>
+
           
         
     </div>
@@ -207,16 +249,24 @@
 
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2024/05/06/select_poll_epoll_3/">展开全文 >></a>
-        </p>
-      
 
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2024/05/06/select_poll_epoll_2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">select/poll/epoll —— select</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -231,773 +281,32 @@
         </div>
         
         
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-select_poll_epoll_2" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2024/05/06/select_poll_epoll_2/">select/poll/epoll —— select</a>
-    </h1>
-  
-
-        
-        <a href="/2024/05/06/select_poll_epoll_2/" class="archive-article-date">
-  	<time datetime="2024-05-06T03:36:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-05-06</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>I/O多路复用 —— select()函数<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">I/O多路复用</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/C-C//" class="article-tag-list-link color1">C/C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2024/05/06/select_poll_epoll_2/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#poll%E5%87%BD%E6%95%B0"><span class="toc-number">1.</span> <span class="toc-text">poll函数</span></a></li></ol>
+                    </div>
+                </span>
             </div>
         </div>
         
-        
     </div>
 </aside>
 
 
 
-
-  
-    <article id="post-select_poll_epoll_1" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2024/05/05/select_poll_epoll_1/">select/poll/epoll —— 套接字通信</a>
-    </h1>
-  
-
-        
-        <a href="/2024/05/05/select_poll_epoll_1/" class="archive-article-date">
-  	<time datetime="2024-05-05T12:36:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-05-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>I/O多路复用前传 —— 套接字通信<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">I/O多路复用</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/C-C//" class="article-tag-list-link color1">C/C++</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2024/05/05/select_poll_epoll_1/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Simulate_1" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2023/07/19/Simulate_1/">一道模拟题—坐标处理挺有意思</a>
-    </h1>
-  
-
-        
-        <a href="/2023/07/19/Simulate_1/" class="archive-article-date">
-  	<time datetime="2023-07-19T01:53:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-07-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>一道模拟题，感觉这里的坐标处理挺有意思的。<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">模拟</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2023/07/19/Simulate_1/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Simulate" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2023/07/07/Simulate/">一道复杂的模拟题</a>
-    </h1>
-  
-
-        
-        <a href="/2023/07/07/Simulate/" class="archive-article-date">
-  	<time datetime="2023-07-07T02:36:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-07-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>一道复杂的模拟题目，较为复杂有趣所以摘录。<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">模拟</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2023/07/07/Simulate/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Primes" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2023/07/03/Primes/">筛选n以内的质数的一些方法</a>
-    </h1>
-  
-
-        
-        <a href="/2023/07/03/Primes/" class="archive-article-date">
-  	<time datetime="2023-07-03T07:46:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2023-07-03</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>筛出从1到 $n$ 之间的素数的算法，一些常见的方法以及理解。<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">质数</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2023/07/03/Primes/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Transformer" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/31/Transformer/">Transformer</a>
-    </h1>
-  
-
-        
-        <a href="/2022/10/31/Transformer/" class="archive-article-date">
-  	<time datetime="2022-10-31T12:43:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-31</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>Transformer is first introduced in NLP. But it has been applied into many other domains. And this paper is about the original structure about transformr.<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Transformer</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/31/Transformer/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-HGNN" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/27/HGNN/">Hypergraph Neural Network(HGNN+)</a>
-    </h1>
-  
-
-        
-        <a href="/2022/10/27/HGNN/" class="archive-article-date">
-  	<time datetime="2022-10-27T02:54:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-27</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>Existing GNN frameworks are deployed based upon simple graphs, which cannot deal with multi-modal/multi-type data. A few hypergraph-based methods have recently been proposed to address the problem by directly concatenating the hypergraphs constructed from each single individual modality/type, which is difficult to learn an adaptive weight for each modality/type. In this paper, we introduce a general high-order multi-modal/multi-type data correlation modeling framework called HGNN+ to learn an optimal representation in a single hypergraph based framework.<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">HGNN</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/27/HGNN/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-GraphSAGE" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/25/GraphSAGE/">Graph Sample and Aggregate(GraphSAGE)</a>
-    </h1>
-  
-
-        
-        <a href="/2022/10/25/GraphSAGE/" class="archive-article-date">
-  	<time datetime="2022-10-25T09:16:19.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>Low-dimensional embeddings of nodes in large graphs have proved extremely useful in a variety of prediction tasks. However, most existing approaches require that all nodes in the graph are present during training of the embeddings; these previous approaches are inherently transductive and do not naturally generalize to unseen nodes. Here we present GraphSAGE, a general inductive framework that leverages node feature information to efficiently generate node embeddings for previously unseen data.<br></p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">GraphSAGE</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/25/GraphSAGE/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-GAT" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/25/GAT/">Graph Attention Network(GAT)</a>
-    </h1>
-  
-
-        
-        <a href="/2022/10/25/GAT/" class="archive-article-date">
-  	<time datetime="2022-10-25T01:52:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>For graph structure problems, there exist two kinds of approaches, spectral and non-spectral approaches.For spectral approaches, the learned filters depend on the Laplacian eigenbasis, which depends on the graph structure. Thus, a model trained on a specific structure can not be directly applied to a graph with a different structure. For non-spectral approaches, one of the challenges is to define an operator which works with different sized neighborhoods and maintains the weight sharing property. So the author introduce the <strong>Graph attention network(GAT)</strong>, computing the hidden representations of each node in the graph by attending over its neighbors and can be directly applicable to inductive learning problems.</p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GAT</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/25/GAT/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
   
   
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &amp;raquo;</a>
-    </nav>
+  
+
+  
+
+  
+
   
 
 
@@ -1020,8 +329,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: true,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
