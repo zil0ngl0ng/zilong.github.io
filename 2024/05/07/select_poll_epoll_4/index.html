@@ -6,14 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>zilong&#39;s blog</title>
+  <title>select/poll/epoll —— epoll | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="zilong&#39;s blog">
-<meta property="og:url" content="http://example.com/page/2/">
+  <meta name="description" content="I&#x2F;O多路复用 —— epoll()函数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="select&#x2F;poll&#x2F;epoll —— epoll">
+<meta property="og:url" content="http://example.com/2024/05/07/select_poll_epoll_4/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="I&#x2F;O多路复用 —— epoll()函数">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/images/IO4_f1.png">
+<meta property="article:published_time" content="2024-05-07T06:36:17.000Z">
+<meta property="article:modified_time" content="2024-05-07T08:38:01.471Z">
+<meta property="article:tag" content="I&#x2F;O多路复用">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/IO4_f1.png">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
   
@@ -152,22 +159,20 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-    <article id="post-GAT" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+            <article id="post-select_poll_epoll_4" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/25/GAT/">Graph Attention Network(GAT)</a>
+    <h1 class="article-title" itemprop="name">
+      select/poll/epoll —— epoll
     </h1>
   
 
         
-        <a href="/2022/10/25/GAT/" class="archive-article-date">
-  	<time datetime="2022-10-25T01:52:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-25</time>
+        <a href="/2024/05/07/select_poll_epoll_4/" class="archive-article-date">
+  	<time datetime="2024-05-07T06:36:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-05-07</time>
 </a>
         
       </header>
@@ -175,7 +180,196 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-          		<p>For graph structure problems, there exist two kinds of approaches, spectral and non-spectral approaches.For spectral approaches, the learned filters depend on the Laplacian eigenbasis, which depends on the graph structure. Thus, a model trained on a specific structure can not be directly applied to a graph with a different structure. For non-spectral approaches, one of the challenges is to define an operator which works with different sized neighborhoods and maintains the weight sharing property. So the author introduce the <strong>Graph attention network(GAT)</strong>, computing the hidden representations of each node in the graph by attending over its neighbors and can be directly applicable to inductive learning problems.</p>
+          
+            <p>I/O多路复用 —— epoll()函数<br><span id="more"></span></p>
+<h1 id="epoll"><a href="#epoll" class="headerlink" title="epoll"></a>epoll</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>epoll 全称 eventpoll，是 linux 内核实现IO多路转接/复用（IO multiplexing）的一个实现。IO多路转接的意思是在一个操作里同时监听多个输入输出源，在其中一个或多个输入输出源可用的时候返回，然后对其的进行读写操作。epoll是select和poll的升级版，相较于这两个前辈，epoll改进了工作方式，因此它更加高效。</p>
+<ul>
+<li>对于待检测集合select和poll是基于线性方式处理的，epoll是基于红黑树来管理待检测集合的。</li>
+<li>select和poll每次都会线性扫描整个待检测集合，集合越大速度越慢，epoll使用的是回调机制，效率高，处理效率也不会随着检测集合的变大而下降</li>
+<li>select和poll工作过程中存在内核/用户空间数据的频繁拷贝问题，在epoll中内核和用户区使用的是共享内存（基于mmap内存映射区实现），省去了不必要的内存拷贝。</li>
+<li>程序猿需要对select和poll返回的集合进行判断才能知道哪些文件描述符是就绪的，通过epoll可以直接得到已就绪的文件描述符集合，无需再次检测</li>
+<li>使用epoll没有最大文件描述符的限制，仅受系统中进程能打开的最大文件数目限制</li>
+</ul>
+<p>当多路复用的文件数量庞大、IO流量频繁的时候，一般不太适合使用select()和poll()，这种情况下select()和poll()表现较差，推荐使用epoll()。</p>
+<h2 id="操作函数"><a href="#操作函数" class="headerlink" title="操作函数"></a>操作函数</h2><p>在epoll中一共提供是三个API函数，分别处理不同的操作，函数原型如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/epoll.h&gt;</span></span></span><br><span class="line"><span class="comment">// 创建epoll实例，通过一棵红黑树管理待检测集合</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">epoll_create</span><span class="params">(<span class="type">int</span> size)</span>;</span><br><span class="line"><span class="comment">// 管理红黑树上的文件描述符(添加、修改、删除)</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">epoll_ctl</span><span class="params">(<span class="type">int</span> epfd, <span class="type">int</span> op, <span class="type">int</span> fd, <span class="keyword">struct</span> epoll_event *event)</span>;</span><br><span class="line"><span class="comment">// 检测epoll树中是否有就绪的文件描述符</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">epoll_wait</span><span class="params">(<span class="type">int</span> epfd, <span class="keyword">struct</span> epoll_event * events, <span class="type">int</span> maxevents, <span class="type">int</span> timeout)</span>;</span><br></pre></td></tr></table></figure>
+<p>select/poll低效的原因之一是将“添加/维护待检测任务”和“阻塞进程/线程”两个步骤合二为一。每次调用select都需要这两步操作，然而大多数应用场景中，需要监视的socket个数相对固定，并不需要每次都修改。epoll将这两个操作分开，先用<code>epoll_ctl()</code>维护等待队列，再调用<code>epoll_wait()</code>阻塞进程（解耦）。通过下图的对比显而易见，epoll的效率得到了提升。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/images/IO4_f1.png" width="50%" alt>
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">
+      <!-- figure 1: 套接字通信的文件描述符 -->
+      </div>
+</center> 
+
+<p><code>epoll_create()</code>函数的作用是创建一个红黑树模型的实例，用于管理待检测的文件描述符的集合。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">epoll_create</span><span class="params">(<span class="type">int</span> size)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>函数参数 size：在Linux内核2.6.8版本以后，这个参数是被忽略的，只需要指定一个大于0的数值就可以了。</li>
+<li>函数返回值：<ul>
+<li>失败：返回-1</li>
+<li>成功：返回一个有效的文件描述符，通过这个文件描述符就可以访问创建的epoll实例了</li>
+</ul>
+</li>
+</ul>
+<p><code>epoll_ctl()</code>函数的作用是管理红黑树实例上的节点，可以进行添加、删除、修改操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 联合体, 多个变量共用同一块内存        </span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">union</span> <span class="title">epoll_data</span> &#123;</span></span><br><span class="line"> 	<span class="type">void</span>        *ptr;</span><br><span class="line">	<span class="type">int</span>          fd;	<span class="comment">// 通常情况下使用这个成员, 和epoll_ctl的第三个参数相同即可</span></span><br><span class="line">	<span class="type">uint32_t</span>     u32;</span><br><span class="line">	<span class="type">uint64_t</span>     u64;</span><br><span class="line">&#125; <span class="type">epoll_data_t</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> &#123;</span></span><br><span class="line">	<span class="type">uint32_t</span>     events;      <span class="comment">/* Epoll events */</span></span><br><span class="line">	<span class="type">epoll_data_t</span> data;        <span class="comment">/* User data variable */</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">int</span> <span class="title function_">epoll_ctl</span><span class="params">(<span class="type">int</span> epfd, <span class="type">int</span> op, <span class="type">int</span> fd, <span class="keyword">struct</span> epoll_event *event)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>函数参数：<ul>
+<li>epfd：epoll_create() 函数的返回值，通过这个参数找到epoll实例</li>
+<li>op：这是一个枚举值，控制通过该函数执行什么操作<ul>
+<li>EPOLL_CTL_ADD：往epoll模型中添加新的节点</li>
+<li>EPOLL_CTL_MOD：修改epoll模型中已经存在的节点</li>
+<li>EPOLL_CTL_DEL：删除epoll模型中的指定的节点</li>
+</ul>
+</li>
+<li>fd：文件描述符，即要添加/修改/删除的文件描述符</li>
+<li>event：epoll事件，用来修饰第三个参数对应的文件描述符的，指定检测这个文件描述符的什么事件<ul>
+<li>events：委托epoll检测的事件<ul>
+<li>EPOLLIN：读事件, 接收数据, 检测读缓冲区，如果有数据该文件描述符就绪</li>
+<li>EPOLLOUT：写事件, 发送数据, 检测写缓冲区，如果可写该文件描述符就绪</li>
+<li>EPOLLERR：异常事件</li>
+</ul>
+</li>
+<li>data：用户数据变量，这是一个联合体类型，通常情况下使用里边的fd成员，用于存储待检测的文件描述符的值，在调用epoll_wait()函数的时候这个值会被传出。</li>
+</ul>
+</li>
+<li>函数返回值：<ul>
+<li>失败：返回-1</li>
+<li>成功：返回0</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><code>epoll_wait()</code>函数的作用是检测创建的epoll实例中有没有就绪的文件描述符。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">epoll_wait</span><span class="params">(<span class="type">int</span> epfd, <span class="keyword">struct</span> epoll_event * events, <span class="type">int</span> maxevents, <span class="type">int</span> timeout)</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>函数参数：</p>
+<ul>
+<li>epfd：epoll_create() 函数的返回值, 通过这个参数找到epoll实例</li>
+<li>events：传出参数, 这是一个结构体数组的地址, 里边存储了已就绪的文件描述符的信息</li>
+<li>maxevents：修饰第二个参数, 结构体数组的容量（元素个数）</li>
+<li>timeout：如果检测的epoll实例中没有已就绪的文件描述符，该函数阻塞的时长, 单位ms 毫秒<ul>
+<li>0：函数不阻塞，不管epoll实例中有没有就绪的文件描述符，函数被调用后都直接返回</li>
+<li>大于0：如果epoll实例中没有已就绪的文件描述符，函数阻塞对应的毫秒数再返回</li>
+<li>-1：函数一直阻塞，直到epoll实例中有已就绪的文件描述符之后才解除阻塞</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>函数返回值：</p>
+<ul>
+<li>成功：<ul>
+<li>等于0：函数是阻塞被强制解除了, 没有检测到满足条件的文件描述符</li>
+<li>大于0：检测到的已就绪的文件描述符的总个数</li>
+</ul>
+</li>
+<li>失败：返回-1</li>
+</ul>
+</li>
+</ul>
+<h2 id="epoll的使用"><a href="#epoll的使用" class="headerlink" title="epoll的使用"></a>epoll的使用</h2><p>在服务器端使用epoll进行IO多路转接的操作步骤如下：</p>
+<ol>
+<li>创建监听的套接字</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> lfd = socket(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>设置端口复用（可选）</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> opt = <span class="number">1</span>;</span><br><span class="line">setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &amp;opt, <span class="keyword">sizeof</span>(opt));</span><br></pre></td></tr></table></figure>
+<ol>
+<li>使用本地的IP与端口和监听的套接字进行绑定</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> ret = bind(lfd, (<span class="keyword">struct</span> sockaddr*)&amp;serv_addr, <span class="keyword">sizeof</span>(serv_addr));</span><br></pre></td></tr></table></figure>
+<ol>
+<li>给监听的套接字设置监听</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">listen(lfd, <span class="number">128</span>);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>创建epoll实例对象</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> epfd = epoll_create(<span class="number">100</span>);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>将用于监听的套接字添加到epoll实例中</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">ev</span>;</span></span><br><span class="line">ev.events = EPOLLIN;    <span class="comment">// 检测lfd读读缓冲区是否有数据</span></span><br><span class="line">ev.data.fd = lfd;</span><br><span class="line"><span class="type">int</span> ret = epoll_ctl(epfd, EPOLL_CTL_ADD, lfd, &amp;ev);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>检测添加到epoll实例中的文件描述符是否已就绪，并将这些已就绪的文件描述符进行处理</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> num = epoll_wait(epfd, evs, size, <span class="number">-1</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果是监听的文件描述符，和新客户端建立连接，将得到的文件描述符添加到epoll实例中</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> cfd = accept(curfd, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">ev.events = EPOLLIN;</span><br><span class="line">ev.data.fd = cfd;</span><br><span class="line"><span class="comment">// 新得到的文件描述符添加到epoll模型中, 下一轮循环的时候就可以被检测了</span></span><br><span class="line">epoll_ctl(epfd, EPOLL_CTL_ADD, cfd, &amp;ev);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>如果是通信的文件描述符，和对应的客户端通信，如果连接已断开，将该文件描述符从epoll实例中删除</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> len = recv(curfd, buf, <span class="keyword">sizeof</span>(buf), <span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span>(len == <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 将这个文件描述符从epoll模型中删除</span></span><br><span class="line">    epoll_ctl(epfd, EPOLL_CTL_DEL, curfd, <span class="literal">NULL</span>);</span><br><span class="line">    close(curfd);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> <span class="keyword">if</span>(len &gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    send(curfd, buf, len, <span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>重复第7步的操作</li>
+</ol>
+<h2 id="epoll的工作模式"><a href="#epoll的工作模式" class="headerlink" title="epoll的工作模式"></a>epoll的工作模式</h2><h3 id="水平模式"><a href="#水平模式" class="headerlink" title="水平模式"></a>水平模式</h3><p>水平模式可以简称为LT模式，LT（level triggered）是缺省的工作方式，并且同时支持block和no-block socket。在这种做法中，内核通知使用者哪些文件描述符已经就绪，之后就可以对这些已就绪的文件描述符进行IO操作了。如果我们不作任何操作，内核还是会继续通知使用者。</p>
+<p><strong>水平模式的特点：</strong></p>
+<ul>
+<li>读事件：如果文件描述符对应的读缓冲区还有数据，读事件就会被触发，epoll_wait()解除阻塞<ul>
+<li>当读事件被触发，epoll_wait()解除阻塞，之后就可以接收数据了</li>
+<li>如果接收数据的buf很小，不能全部将缓冲区数据读出，那么读事件会继续被触发，直到数据被全部读出，如果接收数据的内存相对较大，读数据的效率也会相对较高（减少了读数据的次数）</li>
+<li>因为读数据是被动的，必须要通过读事件才能知道有数据到达了，因此对于读事件的检测是必须的</li>
+</ul>
+</li>
+<li>写事件：如果文件描述符对应的写缓冲区可写，写事件就会被触发，epoll_wait()解除阻塞<ul>
+<li>当写事件被触发，epoll_wait()解除阻塞，之后就可以将数据写入到写缓冲区了</li>
+<li>写事件的触发发生在写数据之前而不是之后，被写入到写缓冲区中的数据是由内核自动发送出去的</li>
+<li>如果写缓冲区没有被写满，写事件会一直被触发</li>
+<li>因为写数据是主动的，并且写缓冲区一般情况下都是可写的（缓冲区不满），因此对于写事件的检测不是必须的</li>
+</ul>
+</li>
+</ul>
+<h3 id="边沿模式"><a href="#边沿模式" class="headerlink" title="边沿模式"></a>边沿模式</h3><p>边沿模式可以简称为ET模式，ET（edge-triggered）是高速工作方式，只支持no-block socket。在这种模式下，当文件描述符从未就绪变为就绪时，内核会通过epoll通知使用者。然后它会假设使用者知道文件描述符已经就绪，并且不会再为那个文件描述符发送更多的就绪通知（only once）。如果我们对这个文件描述符做IO操作，从而导致它再次变成未就绪，当这个未就绪的文件描述符再次变成就绪状态，内核会再次进行通知，并且还是只通知一次。ET模式在很大程度上减少了epoll事件被重复触发的次数，因此效率要比LT模式高。</p>
+<p><strong>边沿模式的特点:</strong></p>
+<ul>
+<li><p>读事件：当读缓冲区有新的数据进入，读事件被触发一次，没有新数据不会触发该事件</p>
+<ul>
+<li>如果有新数据进入到读缓冲区，读事件被触发，epoll_wait()解除阻塞</li>
+<li>读事件被触发，可以通过调用read()/recv()函数将缓冲区数据读出</li>
+<li>如果数据没有被全部读走，并且没有新数据进入，读事件不会再次触发，只通知一次</li>
+<li>如果数据被全部读走或者只读走一部分，此时有新数据进入，读事件被触发，并且只通知一次</li>
+</ul>
+</li>
+<li><p>写事件：当写缓冲区状态可写，写事件只会触发一次</p>
+<ul>
+<li>如果写缓冲区被检测到可写，写事件被触发，epoll_wait()解除阻塞</li>
+<li>写事件被触发，就可以通过调用write()/send()函数，将数据写入到写缓冲区中</li>
+<li>写缓冲区从不满到被写满，期间写事件只会被触发一次</li>
+<li>写缓冲区从满到不满，状态变为可写，写事件只会被触发一次</li>
+</ul>
+</li>
+</ul>
+<p>综上所述：epoll的边沿模式下 epoll_wait()检测到文件描述符有新事件才会通知，如果不是新的事件就不通知，通知的次数比水平模式少，效率比水平模式要高。</p>
+<h4 id="ET模式的设置"><a href="#ET模式的设置" class="headerlink" title="ET模式的设置"></a>ET模式的设置</h4><p>边沿模式不是默认的epoll模式，需要额外进行设置。epoll设置边沿模式是非常简单的，epoll管理的红黑树示例中每个节点都是struct epoll_event类型，只需要将EPOLLET添加到结构体的events成员中即可：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">epoll_event</span> <span class="title">ev</span>;</span></span><br><span class="line">ev.events = EPOLLIN | EPOLLET;	<span class="comment">// 设置边沿模式</span></span><br></pre></td></tr></table></figure>
+<h4 id="设置非阻塞"><a href="#设置非阻塞" class="headerlink" title="设置非阻塞"></a>设置非阻塞</h4><p>对于写事件的触发一般情况下是不需要进行检测的，因为写缓冲区大部分情况下都是有足够的空间可以进行数据的写入。对于读事件的触发就必须要检测了，因为服务器也不知道客户端什么时候发送数据，如果使用epoll的边沿模式进行读事件的检测，有新数据达到只会通知一次，那么必须要保证得到通知后将数据全部从读缓冲区中读出。那么，应该如何读这些数据呢？</p>
+<ul>
+<li><p>方式1：准备一块特别大的内存，用于存储从读缓冲区中读出的数据，但是这种方式有很大的弊端：</p>
+<ul>
+<li>内存的大小没有办法界定，太大浪费内存，太小又不够用</li>
+<li>系统能够分配的最大堆内存也是有上限的，栈内存就更不必多言了</li>
+</ul>
+</li>
+<li><p>方式2：循环接收数据</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> len = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">while</span>((len = recv(curfd, buf, <span class="keyword">sizeof</span>(buf), <span class="number">0</span>)) &gt; <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// 数据处理...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样做也是有弊端的，因为套接字操作默认是阻塞的，当读缓冲区数据被读完之后，读操作就阻塞了也就是调用的read()/recv()函数被阻塞了，当前进程/线程被阻塞之后就无法处理其他操作了。</p>
+<p>要解决阻塞问题，就需要将套接字默认的阻塞行为修改为非阻塞，需要使用fcntl()函数进行处理：</p>
+<p>通过上述分析就可以得出一个结论：<strong>epoll在边沿模式下，必须要将套接字设置为非阻塞模式</strong>，但是，这样就会引发另外的一个bug，在非阻塞模式下，循环地将读缓冲区数据读到本地内存中，当缓冲区数据被读完了，调用的read()/recv()函数还会继续从缓冲区中读数据，此时函数调用就失败了，返回-1，对应的全局变量 errno 值为 EAGAIN 或者 EWOULDBLOCK如果打印错误信息会得到如下的信息：Resource temporarily unavailable</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 非阻塞模式下recv() / read()函数返回值 len == -1</span></span><br><span class="line"><span class="type">int</span> len = recv(curfd, buf, <span class="keyword">sizeof</span>(buf), <span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span>(len == <span class="number">-1</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(errno == EAGAIN)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;数据读完了...\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        perror(<span class="string">&quot;recv&quot;</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
           
         
     </div>
@@ -187,7 +381,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GAT</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">I/O多路复用</a>
         		</li>
       		
 		</ul>
@@ -199,7 +393,7 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
+        			<a href="/categories/C-C//" class="article-tag-list-link color1">C/C++</a>
         		</li>
       		
 		</ul>
@@ -207,16 +401,24 @@
 
 
       
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/25/GAT/">展开全文 >></a>
-        </p>
-      
 
       
       <div class="clearfix"></div>
     </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
+  
+  
+    <a href="/2024/05/06/select_poll_epoll_3/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">select/poll/epoll —— poll</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -231,101 +433,32 @@
         </div>
         
         
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-GCN" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2022/10/20/GCN/">Graph Convolution Network(GCN)</a>
-    </h1>
-  
-
-        
-        <a href="/2022/10/20/GCN/" class="archive-article-date">
-  	<time datetime="2022-10-19T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-20</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-          		<p>This article is mainly about the backgrounds of GCN and its reduction from spectral graph convolution.</p>
-          
-        
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">GCN</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-	<div class="article-category tagcloud">
-		<i class="icon-book icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="/categories/Deep-Learning//" class="article-tag-list-link color4">Deep Learning</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2022/10/20/GCN/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
+        <div class="toc-container tooltip-left">
+            <i class="icon-font icon-category"></i>
+            <div class="tooltip tooltip-east">
+                <span class="tooltip-item">
+                </span>
+                <span class="tooltip-content">
+                    <div class="toc-article">
+                    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#epoll"><span class="toc-number">1.</span> <span class="toc-text">epoll</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%93%8D%E4%BD%9C%E5%87%BD%E6%95%B0"><span class="toc-number">1.2.</span> <span class="toc-text">操作函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="toc-number">1.3.</span> <span class="toc-text">epoll的使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#epoll%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.4.</span> <span class="toc-text">epoll的工作模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B0%B4%E5%B9%B3%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.4.1.</span> <span class="toc-text">水平模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BE%B9%E6%B2%BF%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.4.2.</span> <span class="toc-text">边沿模式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ET%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.4.2.1.</span> <span class="toc-text">ET模式的设置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="toc-number">1.4.2.2.</span> <span class="toc-text">设置非阻塞</span></a></li></ol></li></ol></li></ol></li></ol>
+                    </div>
+                </span>
             </div>
         </div>
         
-        
     </div>
 </aside>
 
 
 
+  
+  
+  
 
   
+
   
-    <nav id="page-nav">
-      <a class="extend prev" rel="prev" href="/">&amp;laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
-    </nav>
+
   
 
 
@@ -348,8 +481,8 @@
     <script>
 	var yiliaConfig = {
 		mathjax: true,
-		isHome: true,
-		isPost: false,
+		isHome: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
