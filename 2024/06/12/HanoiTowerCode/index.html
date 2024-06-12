@@ -6,15 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>categories | zilong&#39;s blog</title>
+  <title>利用汉诺塔进行一个字节的编码 | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="categories">
-<meta property="og:url" content="http://example.com/categories/">
+  <meta name="description" content="利用汉诺塔对一个字节的数据进行编码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="利用汉诺塔进行一个字节的编码">
+<meta property="og:url" content="http://example.com/2024/06/12/HanoiTowerCode/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="利用汉诺塔对一个字节的数据进行编码。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-10-11T07:49:32.000Z">
-<meta property="article:modified_time" content="2022-10-11T07:50:03.706Z">
+<meta property="article:published_time" content="2024-06-12T03:26:06.000Z">
+<meta property="article:modified_time" content="2024-06-12T02:28:04.194Z">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
@@ -154,20 +156,20 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="page-" class="article article-type-page " itemscope itemprop="blogPost">
+            <article id="post-HanoiTowerCode" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      categories
+      利用汉诺塔进行一个字节的编码
     </h1>
   
 
         
-        <a href="/categories/" class="archive-article-date">
-  	<time datetime="2022-10-11T07:49:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-11</time>
+        <a href="/2024/06/12/HanoiTowerCode/" class="archive-article-date">
+  	<time datetime="2024-06-12T03:26:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-06-12</time>
 </a>
         
       </header>
@@ -175,23 +177,41 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-        <div class="category-all-page">
-          <!-- <div class="category-all-title">
-          counter.categories
-          </div> -->
           
-          <div class="category-all">
-          <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-C/">C/C++</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Deep-Learning/">Deep Learning</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E7%BB%8F/">面经</a><span class="category-list-count">7</span></li></ul>
-          </div>
+            <p>利用汉诺塔对一个字节的数据进行编码。<br><span id="more"></span></p>
+<h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>给定一个数字$n$，$n \in [0, 255]$，n的二进制位数从高到低分别为1到8，对应位数为0代表该位数数字在“0柱”上，对应位数为1代表该位数数字在“1柱”上。比如，n=192时，对应的二进制为 11000000，所以“0柱”上为$[8,7,6,5,4,3]$，“1柱”上为$[2,1]$。依循汉诺塔问题的原则将“0柱”和“1柱”上的数字移动到“2柱”的次数，记为对数字$n$的编码。</p>
+<!-- ### 2、递归算法
+
+
+#### (1) 递归变量
+
+
+#### (2) 递归过程
+
+
+#### (3) 递归结束条件
+
+
+### 3、代码实现 -->
+
           
-        </div>
-        
         
     </div>
     <div class="article-info article-info-index">
       
       
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
 
@@ -202,6 +222,16 @@
 </article>
 
   
+<nav id="article-nav">
+  
+  
+    <a href="/2024/06/12/HanoiTower/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">汉诺塔问题的递归算法</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -223,7 +253,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    目录，不存在的…
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1、问题描述</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -233,6 +263,16 @@
 </aside>
 
 
+
+  
+  
+  
+
+  
+
+  
+
+  
 
 
           </div>
@@ -255,7 +295,7 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,

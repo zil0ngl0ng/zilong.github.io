@@ -6,15 +6,17 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://example.com">
-  <title>categories | zilong&#39;s blog</title>
+  <title>汉诺塔问题的递归算法 | zilong&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="categories">
-<meta property="og:url" content="http://example.com/categories/">
+  <meta name="description" content="汉诺塔问题的递归思路讲解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汉诺塔问题的递归算法">
+<meta property="og:url" content="http://example.com/2024/06/12/HanoiTower/">
 <meta property="og:site_name" content="zilong&#39;s blog">
+<meta property="og:description" content="汉诺塔问题的递归思路讲解。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2022-10-11T07:49:32.000Z">
-<meta property="article:modified_time" content="2022-10-11T07:50:03.706Z">
+<meta property="article:published_time" content="2024-06-12T02:46:06.000Z">
+<meta property="article:modified_time" content="2024-06-12T02:29:37.779Z">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="zilong&#39;s blog" type="application/atom+xml">
@@ -154,20 +156,20 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="page-" class="article article-type-page " itemscope itemprop="blogPost">
+            <article id="post-HanoiTower" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      categories
+      汉诺塔问题的递归算法
     </h1>
   
 
         
-        <a href="/categories/" class="archive-article-date">
-  	<time datetime="2022-10-11T07:49:32.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-10-11</time>
+        <a href="/2024/06/12/HanoiTower/" class="archive-article-date">
+  	<time datetime="2024-06-12T02:46:06.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2024-06-12</time>
 </a>
         
       </header>
@@ -175,23 +177,36 @@
     <div class="article-entry" itemprop="articleBody">
       
         
-        <div class="category-all-page">
-          <!-- <div class="category-all-title">
-          counter.categories
-          </div> -->
           
-          <div class="category-all">
-          <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/C-C/">C/C++</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Deep-Learning/">Deep Learning</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AE%97%E6%B3%95/">算法</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E9%9D%A2%E7%BB%8F/">面经</a><span class="category-list-count">7</span></li></ul>
-          </div>
+            <p>汉诺塔问题的递归思路讲解。<br><span id="more"></span></p>
+<h3 id="1、问题描述"><a href="#1、问题描述" class="headerlink" title="1、问题描述"></a>1、问题描述</h3><p>汉诺塔（Hanoi Tower），又称河内塔，源于印度一个古老传说。大梵天创造世界的时候做了三根金刚石柱子，在一根柱子上从下往上按照大小顺序摞着64片黄金圆盘。大梵天命令婆罗门把圆盘从下面开始按大小顺序重新摆放在另一根柱子上。并且规定，任何时候，在小圆盘上都不能放大圆盘，且在三根柱子之间一次只能移动一个圆盘。问应该如何操作？</p>
+<h3 id="2、递归算法"><a href="#2、递归算法" class="headerlink" title="2、递归算法"></a>2、递归算法</h3><p>个人认为递归算法核心主要有以下几点：递归变量、递归过程、递归结束条件，其中难点在于怎么模拟递归过程以及如何寻找递归变量，对于不同的问题这两个核心所呈现的具体代码都是不一样的，但都有共同的特点。</p>
+<h4 id="1-递归变量"><a href="#1-递归变量" class="headerlink" title="(1) 递归变量"></a>(1) 递归变量</h4><p>递归变量是在递归函数中表示递归层数或者起到其它作用，例如汉诺塔问题中，层数n，以及柱子位置A,B,C则是递归开始。</p>
+<h4 id="2-递归过程"><a href="#2-递归过程" class="headerlink" title="(2) 递归过程"></a>(2) 递归过程</h4><p>递归过程是递归算法中的关键行为，这个关键行为在解决问题中可以不断重复循环，最后递归变量达到结束条件就退出递归函数。</p>
+<p>在分析汉诺塔问题，我们可以借助位置B，先把n-1层以上的圆盘放到B位置，然后把第n个圆盘放到C位置上，最后将n-1层以上的圆盘放到C位置上，那么就能够轻松解决问题了，但是，对于n-1层是如何移动B位置上的的呢？聪明的你可能已经发现n-1层圆盘从A移动到B上其实与n层圆盘移动到C位置上是一样的过程，即先把n-2层圆盘放到位置C上再把第n-1个圆盘放到位置B 上，最后n-2层圆盘放到B上，那么对于n-2层圆盘是如何放到C上的呢?其实这是一个重复性的过程。</p>
+<p>在这里为了将问题简单化，我们设置了三个变量：开始位置A、辅助位置B、目标位置C，开始位置A放置所有圆盘，将n-1层圆盘放置辅助位置B后，再将第n个圆盘放置目标位置C，然后将n-1层圆盘的位置B作为开始位置A，原来的开始位置A作为辅助位置B，将所有圆盘放到目标位置C。这个过程的关键点在于什么时候开始位置A和辅助位置B互换？</p>
+<p>我们最开始需要把n-1层圆盘放到辅助位置B，在放置n-1层圆盘时，我们把辅助位置B当作是目标位置C，将其将第n-1个圆盘放到它的目标位置，那么如此一来n-2层圆盘需要一个辅助位置所以此时辅助位置B与目标位置互换，按照这个想法不断寻找上一层圆盘，直至第一层圆盘时我们将其放置在目标位置C上即可（注意：此时的目标位置C可能不是原来的C），然后在回溯的过程中不断输入移动的圆盘（作用是看到圆盘移动的过程）。当n-1层圆盘移动到辅助位置B时，将第n个移动到目标位置C后，需要将第n-1个圆盘移动到目标位置C，此时则借助开始位置A，所以在这里，开始位置A需要与辅助位置B互换，原本n-1层圆盘所在的位置变成开始位置，然后重复搬圆盘的过程，直至所有圆盘放入目标圆盘，完成递归。</p>
+<h4 id="3-递归结束条件"><a href="#3-递归结束条件" class="headerlink" title="(3) 递归结束条件"></a>(3) 递归结束条件</h4><p>递归结束条件是用以结束递归过程的重复，如果没有结束条件，函数将会一直递归下去，使得程序陷入死循环中。那么如何找到递归结束条件呢？可以从递归变量中寻找，例如汉诺塔问题中，递归结束条件语句在于层数，当发现递归到第一层圆盘时，我们可以直接将它放到目标位置上，然后就是回溯的过程，这个工作就交给计算机，我们只需分析问题，写出解决问题的代码。</p>
+<h3 id="3、代码实现"><a href="#3、代码实现" class="headerlink" title="3、代码实现"></a>3、代码实现</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">move</span><span class="params">(<span class="type">int</span> n, <span class="type">char</span> A, <span class="type">char</span> B, <span class="type">char</span> C)</span> </span>&#123;      <span class="comment">//n代表现在需要将第n个圆盘放到目标位置C</span></span><br><span class="line">    <span class="keyword">if</span> (n == <span class="number">1</span>)                                 <span class="comment">//当递归到第1个圆盘时，直接将其放到目标位置C</span></span><br><span class="line">        cout &lt;&lt; A &lt;&lt; <span class="string">&quot;-&gt;&quot;</span> &lt;&lt; C &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">move</span>(n - <span class="number">1</span>,A,C,B);    <span class="comment">//1.将n-1层圆盘放到辅助位置B</span></span><br><span class="line">                              <span class="comment">//2.对于第n-1个圆盘，把B当作目标位置，C当作辅助位置，所以BC互换</span></span><br><span class="line">        cout &lt;&lt; A &lt;&lt; <span class="string">&quot;-&gt;&quot;</span> &lt;&lt; C &lt;&lt; endl;         <span class="comment">//将第n个圆盘放到目标位置C上</span></span><br><span class="line">        <span class="built_in">move</span>(n - <span class="number">1</span>,B,A,C);         <span class="comment">//1.将n-1层圆盘放到目标位置C</span></span><br><span class="line">                                   <span class="comment">//2.对于n-2层圆盘，A当作辅助位置，B当作开始位置，所以AB互换</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">move</span>(<span class="number">64</span>,<span class="string">&#x27;A&#x27;</span>, <span class="string">&#x27;B&#x27;</span>, <span class="string">&#x27;C&#x27;</span>);            <span class="comment">//开始时，A是开始位置，B是辅助位置，C是目标位置</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
           
-        </div>
-        
         
     </div>
     <div class="article-info article-info-index">
       
       
       
+	<div class="article-category tagcloud">
+		<i class="icon-book icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="/categories/算法//" class="article-tag-list-link color3">算法</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
 
       
 
@@ -202,6 +217,25 @@
 </article>
 
   
+<nav id="article-nav">
+  
+    <a href="/2024/06/12/HanoiTowerCode/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          利用汉诺塔进行一个字节的编码
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2024/06/10/RandomDots/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">在圆形区域内生成均匀分布的点</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
 
 <aside class="wrap-side-operation">
     <div class="mod-side-operation">
@@ -223,7 +257,7 @@
                 </span>
                 <span class="tooltip-content">
                     <div class="toc-article">
-                    目录，不存在的…
+                    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">1、问题描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E9%80%92%E5%BD%92%E7%AE%97%E6%B3%95"><span class="toc-number">2.</span> <span class="toc-text">2、递归算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%80%92%E5%BD%92%E5%8F%98%E9%87%8F"><span class="toc-number">2.1.</span> <span class="toc-text">(1) 递归变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%80%92%E5%BD%92%E8%BF%87%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">(2) 递归过程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E9%80%92%E5%BD%92%E7%BB%93%E6%9D%9F%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.3.</span> <span class="toc-text">(3) 递归结束条件</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">3、代码实现</span></a></li></ol>
                     </div>
                 </span>
             </div>
@@ -233,6 +267,16 @@
 </aside>
 
 
+
+  
+  
+  
+
+  
+
+  
+
+  
 
 
           </div>
@@ -255,7 +299,7 @@
 	var yiliaConfig = {
 		mathjax: true,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
 		isTag: false,
 		isCategory: false,
